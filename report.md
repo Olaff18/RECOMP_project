@@ -1,5 +1,7 @@
 # Sprint 1
 
+![](sites/all.jpg)
+
 ## M1B - Team 3
 
 | Name                  | Student Number | Role / Site Responsibility |
@@ -17,7 +19,9 @@
 
 ## 1. Oporto (HQ)
 
-**Assigned address space:** 10.42.56.0/22
+![](sites/oporto.jpg)
+
+### <u>**Assigned address space:**</u> 10.42.56.0/22
 
 ### 1.1 Network Addressing Table
 
@@ -116,7 +120,9 @@
 
 ## 2. Warsaw (BR1)
 
-**Assigned address space:** 172.23.68.0/23
+![](sites/warsaw.jpg)
+
+### <u>**Assigned address space:**</u>172.23.68.0/23
 
 ### 2.1 Network Addressing Table
 
@@ -245,7 +251,9 @@
 
 ## 3. Munich (BR2)
 
-**Assigned address space:** 192.186.166.0/23
+![](sites/munich.jpg)
+
+### <u>**Assigned address space:**</u> 192.186.166.0/23
 
 ### 3.1 Network Addressing Table
 
@@ -330,28 +338,51 @@
 
 ## 4. The Vault
 
-**Assigned address space:** 10.31.111.0/24
+![](sites/vault.jpg)
 
-### 4.1 Interface Addressing Table
+### <u>**Assigned address space:**</u> 10.31.111.0/24
 
-#### 4.1.1 Vault (unknown location)
+### 4.1 Configuration Decisions
+
+#### 4.1.1 Vault router: Internet (SP) connection (Gig0/0/0)
+
+- **Static addressing:** The Vault is the one site whose SP link is configured manually, not by DHCP. I used the values given in the problem statement: `203.0.113.2/30`, with `203.0.113.1` as the gateway.
+
+- **Default route:** I configured `ip route 0.0.0.0 0.0.0.0 203.0.113.1`. The Vault has a single exit toward the Internet, so one default route is enough and no routing protocol is needed.
+
+#### 4.1.2 Vault router: internal interface (Gig0/1)
+
+- I left Gig0/1 **unaddressed and administratively shut down**. The brief says the Vault’s internal details “will be disclosed as required during the project,” so there is no network to serve yet.
+- I did **not** assign any address from `10.31.111.0/24`. The block is reserved for later sprints.
+- Keeping an unneeded interface shut down also stops it from being used as an unintended entry point.
+
+#### 4.1.3 Vault switch: VLANs and ports
+
+- **VLAN 99 (BLACKHOLE) created locally:** The Vault is a separate site and does not share a VTP domain with HQ, Warsaw or Munich, so VLAN 99 is not inherited and had to be created on this switch.
+- **All unused ports are assigned to VLAN 99 and shut down:** This covers `Fa0/1–Fa0/24`, `Gig0/1` and `Gig0/2`. Since the Vault has no internal hosts yet, every port, including the router uplink, counts as unused.
+- **VLAN 1 not used:** No port is left in the default VLAN 1, as instructed. `show vlan brief` shows no interfaces in VLAN 1.
+- **No trunks configured:** The only link, Router Gig0/1 ↔ Switch Gig0/1, carries no tagged traffic, so no trunk exists.
+
+### 4.2 Interface Addressing Table
+
+#### 4.2.1 Vault (unknown location)
 
 | Interface | Assigned IP    | Subnet Mask | Purpose                                           |
 | --------- | -------------- | ----------- | ------------------------------------------------- |
 | Gig0/0/0  | 203.0.113.2    | /30         | Internet (SP) connection — static                 |
 | Gig0/1    | *(unassigned)* | —           | Link to Vault Switch (administratively shut down) |
 
-#### 4.1.2 Vault Switch
+#### 4.2.2 Vault Switch
 
 | Interface | Purpose                                                                         |
 | --------- | ------------------------------------------------------------------------------- |
 | Gig0/1    | Link to Vault Router (unused - assigned to VLAN 99, administratively shut down) |
 
-### 4.2 Connectivity Tests
+### 4.3 Connectivity Tests
 
 | Source       | Destination              | Test Type | Result  |
 | ------------ | ------------------------ | --------- | ------- |
 | Vault Router | SP gateway (203.0.113.1) | `ping`    | Success |
 | Vault Router | www.google.com           | `ping`    | Success |
 
-![](/home/francisco/Documents/RECOMP/Sprints/1/prints/vault_connectivity_tests.jpg)
+![](prints/vault_connectivity_tests.jpg)
