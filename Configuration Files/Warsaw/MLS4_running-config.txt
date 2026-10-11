@@ -1,0 +1,288 @@
+!
+version 12.2(37)SE1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname MLS4
+!
+!
+!
+ip dhcp excluded-address 172.23.69.1 172.23.69.3
+ip dhcp excluded-address 172.23.69.33 172.23.69.35
+ip dhcp excluded-address 172.23.69.65 172.23.69.67
+ip dhcp excluded-address 172.23.68.1 172.23.68.3
+!
+ip dhcp pool STAFF
+ network 172.23.69.0 255.255.255.224
+ default-router 172.23.69.1
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+ip dhcp pool ACCOUNTING
+ network 172.23.69.32 255.255.255.224
+ default-router 172.23.69.33
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+ip dhcp pool HR
+ network 172.23.69.64 255.255.255.240
+ default-router 172.23.69.65
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+ip dhcp pool USERS
+ network 172.23.68.0 255.255.255.0
+ default-router 172.23.68.1
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+!
+!
+ip routing
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain-lookup
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree vlan 10,20,100 priority 24576
+spanning-tree vlan 30,40 priority 28672
+!
+!
+!
+!
+!
+!
+interface Port-channel1
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel3
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/1
+ description Po1 para WAR-MLS3
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface FastEthernet0/2
+ description Po1 para WAR-MLS3
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface FastEthernet0/3
+ description Po3 para WAR-MLS5
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 3 mode active
+!
+interface FastEthernet0/4
+ description Po3 para WAR-MLS5
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 3 mode active
+!
+interface FastEthernet0/5
+ description Trunks para WAR-SW3 a WAR-SW6
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/6
+ description Trunks para WAR-SW3 a WAR-SW6
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/7
+ description Trunks para WAR-SW3 a WAR-SW6
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/8
+ description Trunks para WAR-SW3 a WAR-SW6
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/9
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/10
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/11
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/12
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/13
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/14
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/15
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/16
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/17
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/18
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/19
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/20
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/21
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/22
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/23
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/24
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/1
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/2
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan10
+ description Gateway STAFF
+ mac-address 0006.2a6c.b301
+ ip address 172.23.69.2 255.255.255.224
+ standby 10 ip 172.23.69.1
+ standby 10 priority 110
+ standby 10 preempt
+!
+interface Vlan20
+ description Gateway ACCOUNTING
+ mac-address 0006.2a6c.b302
+ ip address 172.23.69.34 255.255.255.224
+ standby 20 ip 172.23.69.33
+ standby 20 priority 110
+ standby 20 preempt
+!
+interface Vlan30
+ description Gateway HR
+ mac-address 0006.2a6c.b303
+ ip address 172.23.69.66 255.255.255.240
+ standby 30 ip 172.23.69.65
+ standby 30 preempt
+!
+interface Vlan40
+ description Gateway USERS
+ mac-address 0006.2a6c.b304
+ ip address 172.23.68.2 255.255.255.0
+ standby 40 ip 172.23.68.1
+ standby 40 preempt
+!
+interface Vlan100
+ description Transito para MLS3
+ mac-address 0006.2a6c.b305
+ ip address 172.23.69.86 255.255.255.252
+!
+ip classless
+ip route 0.0.0.0 0.0.0.0 172.23.69.85 
+!
+ip flow-export version 9
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+!
+end
+

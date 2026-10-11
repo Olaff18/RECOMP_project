@@ -7,7 +7,7 @@
 | Name                  | Student Number | Role / Site Responsibility |
 | --------------------- | -------------- | -------------------------- |
 |                       |                | *Oporto (HQ)*              |
-|                       |                | *Warsaw (BR1)*             |
+|  *João Fernandes*       | *1211681*    | *Warsaw (BR1)*             |
 |                       |                | *Munich (BR2)*             |
 | *Francisco Magalhães* | *1170589*      | *The Vault*                |
 
@@ -119,13 +119,13 @@
 ---
 
 ## 2. Warsaw (BR1)
-
+ 
 ![](sites/warsaw.jpg)
-
-### <u>**Assigned address space:**</u>172.23.68.0/23
-
+ 
+### <u>**Assigned address space:**</u> 172.23.68.0/23
+ 
 ### 2.1 Network Addressing Table
-
+ 
 | Network             | Hosts req. | CIDR | Mask            | Network Address | Broadcast Address | First Host   | Last Host     |
 | ------------------- | ---------- | ---- | --------------- | --------------- | ----------------- | ------------ | ------------- |
 | VLAN40 – USERS      | 200        | /24  | 255.255.255.0   | 172.23.68.0     | 172.23.68.255     | 172.23.68.1  | 172.23.68.254 |
@@ -135,119 +135,278 @@
 | MLS3 ↔ BR1          | 2          | /30  | 255.255.255.252 | 172.23.69.80    | 172.23.69.83      | 172.23.69.81 | 172.23.69.82  |
 | MLS3 ↔ MLS4         | 2          | /30  | 255.255.255.252 | 172.23.69.84    | 172.23.69.87      | 172.23.69.85 | 172.23.69.86  |
 | MLS3 ↔ MLS5         | 2          | /30  | 255.255.255.252 | 172.23.69.88    | 172.23.69.91      | 172.23.69.89 | 172.23.69.90  |
-
+ 
 ### 2.2 Interface Addressing Table
-
+ 
 #### 2.2.1 BR1 (Warsaw)
-
-| Interface | Assigned IP   | Subnet Mask | Purpose                  |
-| --------- | ------------- | ----------- | ------------------------ |
-| Gig0/0    | 172.23.69.81  | /30         | Link to MLS3             |
-| Gig0/0/0  | DHCP-assigned | /28         | Internet (SP) connection |
-
+ 
+| Interface | Assigned IP                | Subnet Mask | Purpose                                         |
+| --------- | -------------------------- | ----------- | ----------------------------------------------- |
+| Gig0/0    | 172.23.69.82               | /30         | Link to MLS3 (Gig0/1)                           |
+| Gig0/1    | —                          | —           | Unused (administratively shut down)             |
+| Gig0/0/0  | DHCP-assigned (192.0.2.97) | /28         | Internet (SP) connection — gateway 192.0.2.110  |
+ 
 #### 2.2.2 MLS3
-
-| Interface | Assigned IP  | Subnet Mask | Purpose              |
-| --------- | ------------ | ----------- | -------------------- |
-| Gig0/1    | 172.23.69.82 | /30         | Link to BR1 (Warsaw) |
-| Fa0/1     |              |             |                      |
-| Fa0/2     |              |             |                      |
-| Fa0/3     |              |             |                      |
-| Fa0/4     |              |             |                      |
-
+ 
+| Interface             | Assigned IP  | Subnet Mask | Purpose                                                                         |
+| --------------------- | ------------ | ----------- | ------------------------------------------------------------------------------- |
+| Gig0/1                | 172.23.69.81 | /30         | Routed port — link to BR1 (Warsaw) Gig0/0                                       |
+| VLAN100               | 172.23.69.85 | /30         | Transit SVI — Layer 3 link to MLS4                                              |
+| VLAN101               | 172.23.69.89 | /30         | Transit SVI — Layer 3 link to MLS5                                              |
+| Po1                   | —            | —           | LACP EtherChannel to MLS4 — 802.1Q trunk, native VLAN 50, all VLANs except 99  |
+| Fa0/1                 | —            | —           | Po1 member — to MLS4 Fa0/1                                                      |
+| Fa0/2                 | —            | —           | Po1 member — to MLS4 Fa0/2                                                      |
+| Po2                   | —            | —           | LACP EtherChannel to MLS5 — 802.1Q trunk, native VLAN 50, all VLANs except 99  |
+| Fa0/3                 | —            | —           | Po2 member — to MLS5 Fa0/3                                                      |
+| Fa0/4                 | —            | —           | Po2 member — to MLS5 Fa0/4                                                      |
+| Fa0/5–Fa0/24, Gig0/2  | —            | —           | Unused — VLAN 99, administratively shut down                                    |
+ 
 #### 2.2.3 MLS4
-
-| Interface | Assigned IP | Subnet Mask | Purpose |
-| --------- | ----------- | ----------- | ------- |
-| Fa0/1     |             |             |         |
-| Fa0/2     |             |             |         |
-| Fa0/3     | —           | —           |         |
-| Fa0/4     | —           | —           |         |
-| Fa0/5     | —           | —           |         |
-| Fa0/6     | —           | —           |         |
-| Fa0/7     | —           | —           |         |
-| Fa0/8     | —           | —           |         |
-
+ 
+| Interface                   | Assigned IP  | Subnet Mask | Purpose                                                                         |
+| --------------------------- | ------------ | ----------- | ------------------------------------------------------------------------------- |
+| VLAN10                      | 172.23.69.2  | /27         | STAFF SVI — HSRP group 10, **active** (virtual IP 172.23.69.1)                  |
+| VLAN20                      | 172.23.69.34 | /27         | ACCOUNTING SVI — HSRP group 20, **active** (virtual IP 172.23.69.33)            |
+| VLAN30                      | 172.23.69.66 | /28         | HR SVI — HSRP group 30, standby (virtual IP 172.23.69.65)                       |
+| VLAN40                      | 172.23.68.2  | /24         | USERS SVI — HSRP group 40, standby (virtual IP 172.23.68.1)                     |
+| VLAN100                     | 172.23.69.86 | /30         | Transit SVI — Layer 3 link to MLS3                                              |
+| Po1                         | —            | —           | LACP EtherChannel to MLS3 — 802.1Q trunk, native VLAN 50, all VLANs except 99  |
+| Fa0/1                       | —            | —           | Po1 member — to MLS3 Fa0/1                                                      |
+| Fa0/2                       | —            | —           | Po1 member — to MLS3 Fa0/2                                                      |
+| Po3                         | —            | —           | LACP EtherChannel to MLS5 — 802.1Q trunk, native VLAN 50, all VLANs except 99  |
+| Fa0/3                       | —            | —           | Po3 member — to MLS5 Fa0/1                                                      |
+| Fa0/4                       | —            | —           | Po3 member — to MLS5 Fa0/2                                                      |
+| Fa0/5                       | —            | —           | Trunk to SW3 Fa0/1                                                              |
+| Fa0/6                       | —            | —           | Trunk to SW4 Fa0/1                                                              |
+| Fa0/7                       | —            | —           | Trunk to SW5 Fa0/1                                                              |
+| Fa0/8                       | —            | —           | Trunk to SW6 Fa0/1                                                              |
+| Fa0/9–Fa0/24, Gig0/1–Gig0/2 | —            | —           | Unused — VLAN 99, administratively shut down                                    |
+ 
 #### 2.2.4 MLS5
-
-| Interface | Assigned IP | Subnet Mask | Purpose |
-| --------- | ----------- | ----------- | ------- |
-| Fa0/1     | —           | —           |         |
-| Fa0/2     | —           | —           |         |
-| Fa0/3     |             |             |         |
-| Fa0/4     |             |             |         |
-| Fa0/5     | —           | —           |         |
-| Fa0/6     | —           | —           |         |
-| Fa0/7     | —           | —           |         |
-| Fa0/8     | —           | —           |         |
-
+ 
+| Interface                   | Assigned IP  | Subnet Mask | Purpose                                                                         |
+| --------------------------- | ------------ | ----------- | ------------------------------------------------------------------------------- |
+| VLAN10                      | 172.23.69.3  | /27         | STAFF SVI — HSRP group 10, standby (virtual IP 172.23.69.1)                     |
+| VLAN20                      | 172.23.69.35 | /27         | ACCOUNTING SVI — HSRP group 20, standby (virtual IP 172.23.69.33)               |
+| VLAN30                      | 172.23.69.67 | /28         | HR SVI — HSRP group 30, **active** (virtual IP 172.23.69.65)                    |
+| VLAN40                      | 172.23.68.3  | /24         | USERS SVI — HSRP group 40, **active** (virtual IP 172.23.68.1)                  |
+| VLAN101                     | 172.23.69.90 | /30         | Transit SVI — Layer 3 link to MLS3                                              |
+| Po3                         | —            | —           | LACP EtherChannel to MLS4 — 802.1Q trunk, native VLAN 50, all VLANs except 99  |
+| Fa0/1                       | —            | —           | Po3 member — to MLS4 Fa0/3                                                      |
+| Fa0/2                       | —            | —           | Po3 member — to MLS4 Fa0/4                                                      |
+| Po2                         | —            | —           | LACP EtherChannel to MLS3 — 802.1Q trunk, native VLAN 50, all VLANs except 99  |
+| Fa0/3                       | —            | —           | Po2 member — to MLS3 Fa0/3                                                      |
+| Fa0/4                       | —            | —           | Po2 member — to MLS3 Fa0/4                                                      |
+| Fa0/5                       | —            | —           | Trunk to SW3 Fa0/2                                                              |
+| Fa0/6                       | —            | —           | Trunk to SW4 Fa0/2                                                              |
+| Fa0/7                       | —            | —           | Trunk to SW5 Fa0/2                                                              |
+| Fa0/8                       | —            | —           | Trunk to SW6 Fa0/2                                                              |
+| Fa0/9–Fa0/24, Gig0/1–Gig0/2 | —            | —           | Unused — VLAN 99, administratively shut down                                    |
+ 
 #### 2.2.5 SW3
-
-| Interface | Purpose |
-| --------- | ------- |
-| Fa0/1     |         |
-| Fa0/2     |         |
-|           |         |
-
+ 
+| Interface                    | Purpose                                                              |
+| ---------------------------- | -------------------------------------------------------------------- |
+| Fa0/1                        | Trunk to MLS4 Fa0/5 — native VLAN 50, all VLANs except 99            |
+| Fa0/2                        | Trunk to MLS5 Fa0/5 — native VLAN 50, all VLANs except 99            |
+| Fa0/3–Fa0/5                  | Access — VLAN 10 (STAFF), PortFast; Warsaw-STAFF PC on Fa0/3         |
+| Fa0/6–Fa0/10                 | Access — VLAN 20 (ACCOUNTING), PortFast                              |
+| Fa0/11–Fa0/15                | Access — VLAN 30 (HR), PortFast                                      |
+| Fa0/16–Fa0/20                | Access — VLAN 40 (USERS), PortFast                                   |
+| Fa0/21–Fa0/24, Gig0/1–Gig0/2 | Unused — VLAN 99, administratively shut down                         |
+ 
 #### 2.2.6 SW4
-
-| Interface | Purpose |
-| --------- | ------- |
-| Fa0/1     |         |
-| Fa0/2     |         |
-|           |         |
-
+ 
+| Interface                    | Purpose                                                              |
+| ---------------------------- | -------------------------------------------------------------------- |
+| Fa0/1                        | Trunk to MLS4 Fa0/6 — native VLAN 50, all VLANs except 99            |
+| Fa0/2                        | Trunk to MLS5 Fa0/6 — native VLAN 50, all VLANs except 99            |
+| Fa0/3–Fa0/5                  | Access — VLAN 10 (STAFF), PortFast                                   |
+| Fa0/6–Fa0/10                 | Access — VLAN 20 (ACCOUNTING), PortFast; Warsaw-ACCOUNTING PC on Fa0/6 |
+| Fa0/11–Fa0/15                | Access — VLAN 30 (HR), PortFast                                      |
+| Fa0/16–Fa0/20                | Access — VLAN 40 (USERS), PortFast                                   |
+| Fa0/21–Fa0/24, Gig0/1–Gig0/2 | Unused — VLAN 99, administratively shut down                         |
+ 
 #### 2.2.7 SW5
-
-| Interface | Purpose |
-| --------- | ------- |
-| Fa0/1     |         |
-| Fa0/2     |         |
-|           |         |
-
+ 
+| Interface                    | Purpose                                                              |
+| ---------------------------- | -------------------------------------------------------------------- |
+| Fa0/1                        | Trunk to MLS4 Fa0/7 — native VLAN 50, all VLANs except 99            |
+| Fa0/2                        | Trunk to MLS5 Fa0/7 — native VLAN 50, all VLANs except 99            |
+| Fa0/3–Fa0/5                  | Access — VLAN 10 (STAFF), PortFast                                   |
+| Fa0/6–Fa0/10                 | Access — VLAN 20 (ACCOUNTING), PortFast                              |
+| Fa0/11–Fa0/15                | Access — VLAN 30 (HR), PortFast; Warsaw-HR PC on Fa0/11              |
+| Fa0/16–Fa0/20                | Access — VLAN 40 (USERS), PortFast                                   |
+| Fa0/21–Fa0/24, Gig0/1–Gig0/2 | Unused — VLAN 99, administratively shut down                         |
+ 
 #### 2.2.8 SW6
-
-| Interface | Purpose |
-| --------- | ------- |
-| Fa0/1     |         |
-| Fa0/2     |         |
-|           |         |
-
+ 
+| Interface                    | Purpose                                                              |
+| ---------------------------- | -------------------------------------------------------------------- |
+| Fa0/1                        | Trunk to MLS4 Fa0/8 — native VLAN 50, all VLANs except 99            |
+| Fa0/2                        | Trunk to MLS5 Fa0/8 — native VLAN 50, all VLANs except 99            |
+| Fa0/3–Fa0/5                  | Access — VLAN 10 (STAFF), PortFast                                   |
+| Fa0/6–Fa0/10                 | Access — VLAN 20 (ACCOUNTING), PortFast                              |
+| Fa0/11–Fa0/15                | Access — VLAN 30 (HR), PortFast                                      |
+| Fa0/16–Fa0/20                | Access — VLAN 40 (USERS), PortFast; Warsaw-USERS PC on Fa0/16        |
+| Fa0/21–Fa0/24, Gig0/1–Gig0/2 | Unused — VLAN 99, administratively shut down                         |
+ 
 #### 2.2.9 Warsaw-STAFF
-
-| Interface | Assigned IP   | Subnet Mask | Purpose     |
-| --------- | ------------- | ----------- | ----------- |
-| Fa0       | DHCP-assigned | /27         | VLAN10 host |
-
+ 
+| Interface | Assigned IP   | Subnet Mask | Purpose                                   |
+| --------- | ------------- | ----------- | ----------------------------------------- |
+| Fa0       | DHCP-assigned | /27         | VLAN10 host — gateway 172.23.69.1 (HSRP)  |
+ 
 #### 2.2.10 Warsaw-ACCOUNTING
-
-| Interface | Assigned IP   | Subnet Mask | Purpose     |
-| --------- | ------------- | ----------- | ----------- |
-| Fa0       | DHCP-assigned | /27         | VLAN20 host |
-
+ 
+| Interface | Assigned IP   | Subnet Mask | Purpose                                    |
+| --------- | ------------- | ----------- | ------------------------------------------ |
+| Fa0       | DHCP-assigned | /27         | VLAN20 host — gateway 172.23.69.33 (HSRP)  |
+ 
 #### 2.2.11 Warsaw-HR
-
-| Interface | Assigned IP   | Subnet Mask | Purpose     |
-| --------- | ------------- | ----------- | ----------- |
-| Fa0       | DHCP-assigned | /28         | VLAN30 host |
-
+ 
+| Interface | Assigned IP   | Subnet Mask | Purpose                                    |
+| --------- | ------------- | ----------- | ------------------------------------------ |
+| Fa0       | DHCP-assigned | /28         | VLAN30 host — gateway 172.23.69.65 (HSRP)  |
+ 
 #### 2.2.12 Warsaw-USERS
+ 
+| Interface | Assigned IP   | Subnet Mask | Purpose                                   |
+| --------- | ------------- | ----------- | ----------------------------------------- |
+| Fa0       | DHCP-assigned | /24         | VLAN40 host — gateway 172.23.68.1 (HSRP)  |
+ 
+### 2.3 Configuration Decisions
+ 
+#### 2.3.1 Addressing
+ 
+- **VLSM, largest network first:** All Warsaw networks fit inside `172.23.68.0/23`. The range `172.23.69.92–172.23.69.255` is left free for later sprints.
+- **STAFF as /27:** The brief lists "STAFF (30)" without the word "users", unlike the other networks. I read it as 30 hosts in total. A /27 gives 30 usable addresses; 3 go to HSRP (virtual IP and the two SVIs), which leaves 27 for DHCP clients.
+- **Fixed pattern in every user VLAN:** first usable address = HSRP virtual IP (default gateway), second = MLS4, third = MLS5. These three addresses are excluded from DHCP.
+#### 2.3.2 VLANs and VTP
+ 
+- **VTP domain** `RECOMP2627M1B03`, password `7262pmocer`. MLS3, MLS4 and MLS5 are VTP servers; SW3–SW6 are VTP clients.
+- **VLANs are created only on MLS4** and reach the other switches through VTP.
 
-| Interface | Assigned IP   | Subnet Mask | Purpose     |
-| --------- | ------------- | ----------- | ----------- |
-| Fa0       | DHCP-assigned | /24         | VLAN40 host |
+| VLAN | Name              | Use                                       |
+| ---- | ----------------- | ----------------------------------------- |
+| 10   | STAFF             | User network                              |
+| 20   | ACCOUNTING        | User network                              |
+| 30   | HR                | User network                              |
+| 40   | USERS             | User network                              |
+| 50   | NATIVE            | Native VLAN on every trunk                |
+| 99   | BLACKHOLE         | Unused ports; not allowed on any trunk    |
+| 100  | TRANSIT-MLS3-MLS4 | Layer 3 transit between MLS3 and MLS4     |
+| 101  | TRANSIT-MLS3-MLS5 | Layer 3 transit between MLS3 and MLS5     |
+ 
+#### 2.3.3 Interconnection between MLS3, MLS4 and MLS5
+ 
+- **The brief is contradictory here.** Section 4.2 asks for Layer 2 802.1Q trunks aggregated with LACP; section 4.3 says the MLS3–MLS4 and MLS3–MLS5 connections operate in Layer 3 with IP addresses.
+- **Both requirements are met:** the physical links are LACP EtherChannels configured as 802.1Q trunks (native VLAN 50, all VLANs except 99). The Layer 3 part runs over **transit VLANs 100 and 101**, with SVIs addressed from the two /30 networks in the addressing table.
+- VLANs 100 and 101 are not in the brief; they were added only for this purpose.
 
-### 2.3 Connectivity Tests
+| Port-channel | Between       | Ports                         | Protocol |
+| ------------ | ------------- | ----------------------------- | -------- |
+| Po1          | MLS3 ↔ MLS4   | MLS3 Fa0/1–2 ↔ MLS4 Fa0/1–2   | LACP     |
+| Po2          | MLS3 ↔ MLS5   | MLS3 Fa0/3–4 ↔ MLS5 Fa0/3–4   | LACP     |
+| Po3          | MLS4 ↔ MLS5   | MLS4 Fa0/3–4 ↔ MLS5 Fa0/1–2   | LACP     |
+ 
+#### 2.3.4 Rapid-PVST+ and HSRP
+ 
+- **Rapid-PVST+** runs on every switch. The HSRP active switch of each VLAN is the STP root of that VLAN, as required.
+- **HSRP:** group number = VLAN ID; the active switch has priority 110 and both switches use `preempt`, so the active role returns after a failure.
+- **MLS3 keeps the default STP priority** and is never root.
+- **Access ports use PortFast**, so hosts get their DHCP lease without waiting for STP.
 
-| Source            | Destination            | Test Type | Result  |
-| ----------------- | ---------------------- | --------- | ------- |
-| BR1 Router        | SP gateway             | `ping`    | Success |
-| BR1 Router        | www.google.com         | `ping`    | Success |
-| Warsaw PC (STAFF) | Warsaw PC (ACCOUNTING) | `ping`    | Success |
-| Warsaw PC (STAFF) | Warsaw PC (HR)         | `ping`    | Success |
-| Warsaw PC (STAFF) | Warsaw PC (USERS)      | `ping`    | Success |
-
+| VLAN | STP root (primary) | STP secondary root | HSRP active | Virtual IP   |
+| ---- | ------------------ | ------------------ | ----------- | ------------ |
+| 10   | MLS4               | MLS5               | MLS4        | 172.23.69.1  |
+| 20   | MLS4               | MLS5               | MLS4        | 172.23.69.33 |
+| 30   | MLS5               | MLS4               | MLS5        | 172.23.69.65 |
+| 40   | MLS5               | MLS4               | MLS5        | 172.23.68.1  |
+| 100  | MLS4               | —                  | —           | —            |
+| 101  | MLS5               | —                  | —           | —            |
+ 
+#### 2.3.5 Routing
+ 
+`ip routing` is enabled on MLS3, MLS4 and MLS5. All routes are static.
+ 
+| Device | Destination      | Next hop                       | Notes                                   |
+| ------ | ---------------- | ------------------------------ | --------------------------------------- |
+| MLS4   | 0.0.0.0/0        | 172.23.69.85 (MLS3)            | Default route                           |
+| MLS5   | 0.0.0.0/0        | 172.23.69.89 (MLS3)            | Default route                           |
+| MLS3   | 172.23.68.0/23   | 172.23.69.86 and 172.23.69.90  | Equal-cost routes via MLS4 and MLS5     |
+| MLS3   | 0.0.0.0/0        | 172.23.69.82 (BR1)             | Default route                           |
+| BR1    | 172.23.68.0/23   | 172.23.69.81 (MLS3)            | Return route to the Warsaw networks     |
+| BR1    | 0.0.0.0/0        | 192.0.2.110 (SP)               | Learned from the SP through DHCP        |
+ 
+#### 2.3.6 DHCP
+ 
+Identical (duplicated) pools on MLS4 and MLS5. Every pool uses DNS server `8.8.8.8` and domain `RECOMP2627M1B03.recomp.com`.
+ 
+| Pool       | Network          | Default gateway (HSRP) | Excluded                    |
+| ---------- | ---------------- | ---------------------- | --------------------------- |
+| STAFF      | 172.23.69.0/27   | 172.23.69.1            | 172.23.69.1–172.23.69.3     |
+| ACCOUNTING | 172.23.69.32/27  | 172.23.69.33           | 172.23.69.33–172.23.69.35   |
+| HR         | 172.23.69.64/28  | 172.23.69.65           | 172.23.69.65–172.23.69.67   |
+| USERS      | 172.23.68.0/24   | 172.23.68.1            | 172.23.68.1–172.23.68.3     |
+ 
+#### 2.3.7 Known limitations
+ 
+- **No Internet access from hosts:** Warsaw uses private addresses and BR1 has no NAT yet. This is not required in Sprint 1.
+- **Static routes do not detect failures:** if MLS4 or MLS5 goes down, MLS3 keeps sending part of the traffic coming from BR1 to it. A dynamic routing protocol would solve this.
+- **Duplicated DHCP pools:** in a real network both servers could lease the same address to different clients. Splitting each range between the two servers would avoid it.
+### 2.4 Connectivity Tests
+ 
+| Source                        | Destination                        | Test Type             | Result                                                  |
+| ----------------------------- | ---------------------------------- | --------------------- | ------------------------------------------------------- |
+| BR1 Router                    | SP gateway (192.0.2.110)           | `ping`                | Success                                                 |
+| BR1 Router                    | www.google.com                     | `ping`                | Success                                                 |
+| Warsaw PC (STAFF)             | Warsaw PC (ACCOUNTING)             | `ping`                | Success                                                 |
+| Warsaw PC (STAFF)             | Warsaw PC (HR)                     | `ping`                | Success                                                 |
+| Warsaw PC (STAFF)             | Warsaw PC (USERS)                  | `ping`                | Success                                                 |
+| Warsaw PC (STAFF)             | BR1 Gig0/0 (172.23.69.82)          | `ping`                | Success                                                 |
+| Warsaw PC (STAFF)             | Warsaw PC (HR)                     | `tracert`             | Success — first hop 172.23.69.2 (MLS4, HSRP active)     |
+| HSRP failover (MLS4 isolated) | Warsaw PC (STAFF) → Warsaw PC (HR) | `ping -t`, `show standby brief` | MLS5 became active for VLANs 10 and 20       |
+ 
+**BR1 → SP gateway and www.google.com**
+ 
+![](prints/Ligação_SP_Google_Warsaw.png)
+ 
+**Warsaw PC (STAFF): DHCP-assigned address and ping to ACCOUNTING**
+ 
+![](prints/Ping_PCSTAFF_Warsaw.png)
+ 
+**Warsaw PC (STAFF): ping to HR and USERS**
+ 
+![](prints/Ping_PCSTAFF_Warsaw_2.png)
+ 
+**Warsaw PC (STAFF): ping to BR1 and traceroute to HR (first hop MLS4)**
+ 
+![](prints/Traceroute_Warsaw.png)
+ 
+**HSRP failover: MLS4 isolated, MLS5 takes over VLANs 10 and 20**
+ 
+![](prints/Failover_Warsaw.png)
+ 
+### 2.5 Configuration Verification
+ 
+| Command                     | Device(s)        | Confirms                                                        |
+| --------------------------- | ---------------- | --------------------------------------------------------------- |
+| `show vtp status`           | MLS4, SW3        | VTP domain, server/client mode, synchronized revision           |
+| `show vlan brief`           | MLS4, SW3        | VLAN names and access-port membership; unused ports in VLAN 99  |
+| `show etherchannel summary` | MLS3, MLS4, MLS5 | Po1, Po2, Po3 in use (SU), LACP, all members bundled (P)        |
+| `show interfaces trunk`     | MLS4, SW3        | 802.1Q, native VLAN 50, VLAN 99 not allowed                     |
+| `show spanning-tree vlan X` | MLS4, MLS5       | Root bridges per VLAN as in 2.3.4                               |
+| `show standby brief`        | MLS4, MLS5       | HSRP active/standby roles as in 2.3.4                           |
+| `show ip route`             | MLS3, BR1        | Static and default routes as in 2.3.5                           |
+| `show ip dhcp binding`      | MLS4, MLS5       | Leases handed to the Warsaw PCs                                 |
+ 
+<!-- ![](prints/warsaw_verification.jpg) -->
+ 
 ---
+ 
+
+
 
 ## 3. Munich (BR2)
 

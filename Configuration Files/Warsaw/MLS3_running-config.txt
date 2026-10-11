@@ -1,0 +1,232 @@
+!
+version 12.2(37)SE1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname MLS3
+!
+!
+!
+!
+!
+!
+ip routing
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain-lookup
+!
+!
+spanning-tree mode rapid-pvst
+!
+!
+!
+!
+!
+!
+interface Port-channel1
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel2
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/1
+ description Po1 para WAR-MLS4
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface FastEthernet0/2
+ description Po1 para WAR-MLS4
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 1 mode active
+!
+interface FastEthernet0/3
+ description Po2 para WAR-MLS5
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 2 mode active
+!
+interface FastEthernet0/4
+ description Po2 para WAR-MLS5
+ switchport trunk native vlan 50
+ switchport trunk allowed vlan 1-98,100-1005
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 2 mode active
+!
+interface FastEthernet0/5
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/6
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/7
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/8
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/9
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/10
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/11
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/12
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/13
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/14
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/15
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/16
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/17
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/18
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/19
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/20
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/21
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/22
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/23
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/24
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface GigabitEthernet0/1
+ no switchport
+ ip address 172.23.69.81 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/2
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan100
+ description Transito para WAR-MLS4
+ mac-address 0060.5c8a.ed01
+ ip address 172.23.69.85 255.255.255.252
+!
+interface Vlan101
+ description Transito para WAR-MLS5
+ mac-address 0060.5c8a.ed02
+ ip address 172.23.69.89 255.255.255.252
+!
+ip classless
+ip route 172.23.68.0 255.255.254.0 172.23.69.86 
+ip route 172.23.68.0 255.255.254.0 172.23.69.90 
+ip route 0.0.0.0 0.0.0.0 172.23.69.82 
+!
+ip flow-export version 9
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+!
+end
+
