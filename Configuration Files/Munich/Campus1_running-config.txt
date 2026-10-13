@@ -37,6 +37,7 @@ license udi pid CISCO2911/K9 sn FTX152481DW-
 !
 !
 !
+ip name-server 8.8.8.8
 !
 !
 spanning-tree mode pvst

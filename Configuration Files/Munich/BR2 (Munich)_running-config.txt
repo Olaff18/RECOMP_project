@@ -62,6 +62,7 @@ spanning-tree mode pvst
 interface GigabitEthernet0/0
  description Link to Campus1 Router
  ip address 192.186.167.65 255.255.255.252
+ ip nat inside
  duplex auto
  speed auto
 !
@@ -75,16 +76,19 @@ interface GigabitEthernet0/1.10
  description Gateway STAFF (VLAN 10)
  encapsulation dot1Q 10
  ip address 192.186.167.46 255.255.255.240
+ ip nat inside
 !
 interface GigabitEthernet0/1.20
  description Gateway ACCOUNTING (VLAN 20)
  encapsulation dot1Q 20
  ip address 192.186.167.30 255.255.255.224
+ ip nat inside
 !
 interface GigabitEthernet0/1.30
  description Gateway HR (VLAN 30)
  encapsulation dot1Q 30
  ip address 192.186.167.62 255.255.255.240
+ ip nat inside
 !
 interface GigabitEthernet0/2
  no ip address
@@ -95,6 +99,7 @@ interface GigabitEthernet0/2
 interface GigabitEthernet0/0/0
  description WAN Link to Service Provider
  ip address 193.136.60.147 255.255.255.248
+ ip nat outside
 !
 interface Vlan1
  no ip address
@@ -102,6 +107,7 @@ interface Vlan1
 !
 router rip
 !
+ip nat inside source list 10 interface GigabitEthernet0/0/0 overload
 ip classless
 ip route 0.0.0.0 0.0.0.0 193.136.60.150 
 ip route 192.186.166.0 255.255.255.0 192.186.167.66 
@@ -109,6 +115,7 @@ ip route 192.186.166.0 255.255.255.0 192.186.167.66
 ip flow-export version 9
 !
 !
+access-list 10 permit 192.186.0.0 0.0.255.255
 !
 !
 !
