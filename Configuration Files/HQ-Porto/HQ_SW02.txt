@@ -1,0 +1,93 @@
+hostname HQ_SW02
+!
+ip dhcp snooping
+ip dhcp snooping vlan 10,20,30,40
+!
+ip arp inspection vlan 10,20,30,40
+!
+no ip dhcp snooping information option
+!interface FastEthernet0/3
+ description Uplink to HQ-MLS01
+ switchport nonegotiate
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50 
+ ip dhcp snooping trust
+ ip arp inspection trust
+ no shutdown
+!
+interface FastEthernet0/4
+ description Uplink to HQ-MLS02
+ switchport nonegotiate
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50 
+ ip dhcp snooping trust
+ ip arp inspection trust
+ no shutdown
+!
+vtp mode client
+vtp domain RECOMP2627M1B03 
+vtp password RECOMP_2026#
+!
+spanning-tree mode rapid-pvst
+!
+interface range FastEthernet0/5-8
+ description ACCESS PORTS - STAFF
+ switchport mode access
+ switchport access vlan 10
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+interface range FastEthernet0/9-12
+ description ACCESS PORTS - ACCOUNTING
+ switchport mode access
+ switchport access vlan 20
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+interface range FastEthernet0/13-16
+ description ACCESS PORTS - HR
+ switchport mode access
+ switchport access vlan 30
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+interface range FastEthernet0/17-20
+ description ACCESS PORTS - USERS
+ switchport mode access
+ switchport access vlan 40
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+!
+interface range FastEthernet0/1-2, FastEthernet0/21-24, GigabitEthernet0/1-2
+ description NOT IN USE
+ switchport mode access
+ switchport access vlan 99
+ shutdown
+!
+end
+

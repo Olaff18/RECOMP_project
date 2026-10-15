@@ -1,0 +1,107 @@
+hostname HQ_MLS2
+!
+interface PortChannel 1
+ description InterSwitch Link - Aggregated Link
+ switchport nonegotiate
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50 
+ no shutdown
+!
+interface range FastEthernet0/1-2
+ description InterSwitch Link
+ channel-group 1 mode active
+!
+vtp mode server
+vtp domain RECOMP2627M1B03 
+vtp password RECOMP_2026#
+!
+spanning-tree mode rapid-pvst
+!
+spanning-tree vlan 10 root secondary
+spanning-tree vlan 20 root secondary
+spanning-tree vlan 30 root primary
+spanning-tree vlan 40 root primary
+!
+interface Vlan10
+ description STAFF
+ ip address 10.42.59.130 255.255.255.192
+ standby version 2
+ standby 10 ip 10.42.59.190
+ standby 10 preempt
+ no shutdown
+!
+interface Vlan20
+ description ACCOUNTING
+ ip address 10.42.58.2 255.255.255.0
+ standby version 2
+ standby 20 ip 10.42.58.254
+ standby 20 preempt
+ no shutdown
+!
+interface Vlan30
+ description HR
+ ip address 10.42.59.2 255.255.255.128
+ standby version 2
+ standby 30 ip 10.42.59.126
+ standby 30 priority 150
+ standby 30 preempt
+ no shutdown
+!
+interface Vlan40
+ description USERS
+ ip address 10.42.56.2 255.255.254.0
+ standby version 2
+ standby 40 ip 10.42.57.254
+ standby 40 priority 150
+ standby 40 preempt
+ no shutdown
+!
+ip dhcp excluded-address 10.42.59.129 10.42.59.130
+ip dhcp excluded-address 10.42.59.190
+!
+ip dhcp pool STAFF_POOL
+ network 10.42.59.128 255.255.255.192
+ default-router 10.42.59.190
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+!
+ip dhcp excluded-address 10.42.58.1 10.42.58.2
+ip dhcp excluded-address 10.42.58.254
+!
+ip dhcp pool ACCOUNTING_POOL
+ network 10.42.58.0 255.255.255.0
+ default-router 10.42.58.254
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+!
+ip dhcp excluded-address 10.42.59.1 10.42.59.2
+ip dhcp excluded-address 10.42.59.126
+!
+ip dhcp pool HR_POOL
+ network 10.42.59.0 255.255.255.128
+ default-router 10.42.59.126
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+!
+ip dhcp excluded-address 10.42.56.1 10.42.56.2
+ip dhcp excluded-address 10.42.57.254
+!
+ip dhcp pool USERS_POOL
+ network 10.42.56.0 255.255.254.0
+ default-router 10.42.57.254
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+!
+interface GigabitEthernet0/1
+ no switchport
+!
+interface range FastEthernet0/5-24, GigabitEthernet0/2
+ description NOT IN USE
+ shutdown
+ switchport mode access
+ switchport access vlan 99
+!
+end
+
