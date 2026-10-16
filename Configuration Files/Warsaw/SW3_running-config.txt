@@ -6,6 +6,13 @@ no service password-encryption
 !
 hostname SW3
 !
+! VTP and VLAN database (vlan.dat) - not shown in the running-config.
+! Added manually to document the complete configuration.
+! VLANs are learned from MLS4 through VTP.
+vtp domain RECOMP2627M1B03
+vtp password 7262pmocer
+vtp mode client
+!
 !
 !
 no ip domain-lookup

@@ -6,6 +6,15 @@ no service password-encryption
 !
 hostname MLS3
 !
+! VTP and VLAN database (vlan.dat) - not shown in the running-config.
+! Added manually to document the complete configuration.
+! VLANs are learned from MLS4 through VTP.
+vtp domain RECOMP2627M1B03
+vtp password 7262pmocer
+vtp mode server
+!
+!
+no profinet
 !
 !
 !
@@ -196,12 +205,12 @@ interface Vlan1
 !
 interface Vlan100
  description Transito para WAR-MLS4
- mac-address 0060.5c8a.ed01
+ mac-address 0001.96d0.6b01
  ip address 172.23.69.85 255.255.255.252
 !
 interface Vlan101
  description Transito para WAR-MLS5
- mac-address 0060.5c8a.ed02
+ mac-address 0001.96d0.6b02
  ip address 172.23.69.89 255.255.255.252
 !
 ip classless

@@ -29,6 +29,8 @@ license udi pid CISCO2901/K9 sn FTX1524AF20-
 !
 !
 !
+!
+!
 ip domain-name recomp.local
 !
 !

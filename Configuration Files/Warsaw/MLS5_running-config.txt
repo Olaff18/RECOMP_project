@@ -6,6 +6,15 @@ no service password-encryption
 !
 hostname MLS5
 !
+! VTP and VLAN database (vlan.dat) - not shown in the running-config.
+! Added manually to document the complete configuration.
+! VLANs are learned from MLS4 through VTP.
+vtp domain RECOMP2627M1B03
+vtp password 7262pmocer
+vtp mode server
+!
+!
+no profinet
 !
 !
 ip dhcp excluded-address 172.23.69.1 172.23.69.3
@@ -229,21 +238,21 @@ interface Vlan1
 !
 interface Vlan10
  description Gateway STAFF
- mac-address 00d0.d315.0a01
+ mac-address 00d0.bca1.d201
  ip address 172.23.69.3 255.255.255.224
  standby 10 ip 172.23.69.1
  standby 10 preempt
 !
 interface Vlan20
  description Gateway ACCOUNTING
- mac-address 00d0.d315.0a02
+ mac-address 00d0.bca1.d202
  ip address 172.23.69.35 255.255.255.224
  standby 20 ip 172.23.69.33
  standby 20 preempt
 !
 interface Vlan30
  description Gateway HR
- mac-address 00d0.d315.0a03
+ mac-address 00d0.bca1.d203
  ip address 172.23.69.67 255.255.255.240
  standby 30 ip 172.23.69.65
  standby 30 priority 110
@@ -251,7 +260,7 @@ interface Vlan30
 !
 interface Vlan40
  description Gateway USERS
- mac-address 00d0.d315.0a04
+ mac-address 00d0.bca1.d204
  ip address 172.23.68.3 255.255.255.0
  standby 40 ip 172.23.68.1
  standby 40 priority 110
@@ -259,7 +268,7 @@ interface Vlan40
 !
 interface Vlan101
  description Transito para MLS3
- mac-address 00d0.d315.0a05
+ mac-address 00d0.bca1.d205
  ip address 172.23.69.90 255.255.255.252
 !
 ip classless

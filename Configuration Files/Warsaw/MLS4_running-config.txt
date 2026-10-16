@@ -6,6 +6,32 @@ no service password-encryption
 !
 hostname MLS4
 !
+! VTP and VLAN database (vlan.dat) - not shown in the running-config.
+! Added manually to document the complete configuration.
+! VLANs are created only on MLS4 and learned by the other switches through VTP.
+vtp domain RECOMP2627M1B03
+vtp password 7262pmocer
+vtp mode server
+!
+vlan 10
+ name STAFF
+vlan 20
+ name ACCOUNTING
+vlan 30
+ name HR
+vlan 40
+ name USERS
+vlan 50
+ name NATIVE
+vlan 99
+ name BLACKHOLE
+vlan 100
+ name TRANSIT-MLS3-MLS4
+vlan 101
+ name TRANSIT-MLS3-MLS5
+!
+!
+no profinet
 !
 !
 ip dhcp excluded-address 172.23.69.1 172.23.69.3
@@ -229,7 +255,7 @@ interface Vlan1
 !
 interface Vlan10
  description Gateway STAFF
- mac-address 0006.2a6c.b301
+ mac-address 00d0.5876.ad01
  ip address 172.23.69.2 255.255.255.224
  standby 10 ip 172.23.69.1
  standby 10 priority 110
@@ -237,7 +263,7 @@ interface Vlan10
 !
 interface Vlan20
  description Gateway ACCOUNTING
- mac-address 0006.2a6c.b302
+ mac-address 00d0.5876.ad02
  ip address 172.23.69.34 255.255.255.224
  standby 20 ip 172.23.69.33
  standby 20 priority 110
@@ -245,21 +271,21 @@ interface Vlan20
 !
 interface Vlan30
  description Gateway HR
- mac-address 0006.2a6c.b303
+ mac-address 00d0.5876.ad03
  ip address 172.23.69.66 255.255.255.240
  standby 30 ip 172.23.69.65
  standby 30 preempt
 !
 interface Vlan40
  description Gateway USERS
- mac-address 0006.2a6c.b304
+ mac-address 00d0.5876.ad04
  ip address 172.23.68.2 255.255.255.0
  standby 40 ip 172.23.68.1
  standby 40 preempt
 !
 interface Vlan100
  description Transito para MLS3
- mac-address 0006.2a6c.b305
+ mac-address 00d0.5876.ad05
  ip address 172.23.69.86 255.255.255.252
 !
 ip classless
