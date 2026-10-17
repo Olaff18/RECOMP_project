@@ -6,7 +6,8 @@ ip dhcp snooping vlan 10,20,30,40
 ip arp inspection vlan 10,20,30,40
 !
 no ip dhcp snooping information option
-!interface FastEthernet0/3
+!
+interface FastEthernet0/3
  description Uplink to HQ-MLS01
  switchport nonegotiate
  switchport trunk encapsulation dot1q

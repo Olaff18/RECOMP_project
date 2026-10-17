@@ -1,6 +1,6 @@
 hostname HQ_MLS2
 !
-interface PortChannel 1
+interface Port-Channel 1
  description InterSwitch Link - Aggregated Link
  switchport nonegotiate
  switchport trunk encapsulation dot1q
@@ -13,6 +13,24 @@ interface range FastEthernet0/1-2
  description InterSwitch Link
  channel-group 1 mode active
 !
+interface FastEthernet0/3
+ description Uplink to HQ-SW01
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50
+ no shutdown
+!
+interface FastEthernet0/4
+ description Uplink to HQ-SW02
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50
+ no shutdown
+!
 vtp mode server
 vtp domain RECOMP2627M1B03 
 vtp password RECOMP_2026#
@@ -23,6 +41,8 @@ spanning-tree vlan 10 root secondary
 spanning-tree vlan 20 root secondary
 spanning-tree vlan 30 root primary
 spanning-tree vlan 40 root primary
+!
+ip routing
 !
 interface Vlan10
  description STAFF
@@ -95,7 +115,10 @@ ip dhcp pool USERS_POOL
  domain-name RECOMP2627M1B03.recomp.com
 !
 interface GigabitEthernet0/1
+ description Uplink to HQ (Oporto) RT
  no switchport
+ ip address 10.42.59.198 255.255.255.252
+ no shutdown
 !
 interface range FastEthernet0/5-24, GigabitEthernet0/2
  description NOT IN USE

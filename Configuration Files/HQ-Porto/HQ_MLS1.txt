@@ -1,6 +1,6 @@
 hostname HQ_MLS1
 !
-interface PortChannel 1
+interface Port-Channel 1
  description InterSwitch Link - Aggregated Link
  switchport nonegotiate
  switchport trunk encapsulation dot1q
@@ -41,6 +41,8 @@ spanning-tree vlan 10 root primary
 spanning-tree vlan 20 root primary
 spanning-tree vlan 30 root secondary
 spanning-tree vlan 40 root secondary
+!
+ip routing
 !
 interface Vlan10
  description STAFF
@@ -113,7 +115,10 @@ ip dhcp pool USERS_POOL
  domain-name RECOMP2627M1B03.recomp.com
 !
 interface GigabitEthernet0/1
+ description Uplink to HQ (Oporto) RT
  no switchport
+ ip address 10.42.59.194 255.255.255.252
+ no shutdown
 !
 interface range FastEthernet0/5-24, GigabitEthernet0/2
  description NOT IN USE
