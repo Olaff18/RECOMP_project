@@ -457,14 +457,14 @@ Identical (duplicated) pools on MLS4 and MLS5. Every pool uses DNS server `8.8.8
 | Gig0/1.30 | 192.186.167.62 | /28         | HR gateway (last available address)         |
 | Gig0/0/0  | 193.136.60.147 | /29         | Internet (SP) connection - static           |
 
-### 3.2.2 Campus1 (Munich)
+#### 3.2.2 Campus1 (Munich)
 
 | Interface | Assigned IP    | Subnet Mask | Purpose                                |
 | --------- | -------------- | ----------- | -------------------------------------- |
 | Gig0/0    | 192.186.167.66 | /30         | Link to BR2 (Munich)                  |
 | Gig0/1    | 192.186.166.1  | /24         | USERS gateway (last available address) |
 
-### 3.3.3 SW7
+#### 3.3.3 SW7
 
 | Interface              | Purpose                                                             |
 | ---------------------- | ------------------------------------------------------------------- |
@@ -474,7 +474,7 @@ Identical (duplicated) pools on MLS4 and MLS5. Every pool uses DNS server `8.8.8
 | Fa0/11–Fa0/15         | Access - VLAN 30 (HR)                                               |
 | Fa0/16–Fa0/24, Gig0/2 | Unused - VLAN 99, administratively shut down                        |
 
-### 3.3.4 SW8
+#### 3.3.4 SW8
 
 | Interface     | Purpose                                          |
 | ------------- | ------------------------------------------------ |
@@ -482,25 +482,25 @@ Identical (duplicated) pools on MLS4 and MLS5. Every pool uses DNS server `8.8.8
 | Fa0/1–Fa0/24 | Access - VLAN 40 (USERS)                         |
 | Gig0/2        | Unused - VLAN 99, administratively shut down     |
 
-###### 3.3.5 Munich-USERS
+#### 3.3.5 Munich-USERS
 
 | Interface | Assigned IP   | Subnet Mask | Purpose     |
 | --------- | ------------- | ----------- | ----------- |
 | Fa0       | DHCP-assigned | /24         | VLAN40 host |
 
-###### 3.3.6 Munich-ACCOUNTING
+#### 3.3.6 Munich-ACCOUNTING
 
 | Interface | Assigned IP   | Subnet Mask | Purpose     |
 | --------- | ------------- | ----------- | ----------- |
 | Fa0       | DHCP-assigned | /27         | VLAN20 host |
 
-###### 3.3.7 Munich-STAFF
+#### 3.3.7 Munich-STAFF
 
 | Interface | Assigned IP   | Subnet Mask | Purpose     |
 | --------- | ------------- | ----------- | ----------- |
 | Fa0       | DHCP-assigned | /28         | VLAN10 host |
 
-###### 3.3.8 Munich-HR
+#### 3.3.8 Munich-HR
 
 | Interface | Assigned IP   | Subnet Mask | Purpose     |
 | --------- | ------------- | ----------- | ----------- |
