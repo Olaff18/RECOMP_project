@@ -10,7 +10,6 @@ no ip dhcp snooping information option
 interface FastEthernet0/3
  description Uplink to HQ-MLS01
  switchport nonegotiate
- switchport trunk encapsulation dot1q
  switchport mode trunk
  switchport trunk allowed vlan 10,20,30,40
  switchport trunk native vlan 50 
@@ -21,7 +20,6 @@ interface FastEthernet0/3
 interface FastEthernet0/4
  description Uplink to HQ-MLS02
  switchport nonegotiate
- switchport trunk encapsulation dot1q
  switchport mode trunk
  switchport trunk allowed vlan 10,20,30,40
  switchport trunk native vlan 50 
