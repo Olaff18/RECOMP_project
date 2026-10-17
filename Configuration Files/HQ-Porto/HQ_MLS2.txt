@@ -13,24 +13,6 @@ interface range FastEthernet0/1-2
  description InterSwitch Link
  channel-group 1 mode active
 !
-interface FastEthernet0/3
- description Uplink to HQ-SW01
- switchport trunk encapsulation dot1q
- switchport mode trunk
- switchport nonegotiate
- switchport trunk allowed vlan 10,20,30,40
- switchport trunk native vlan 50
- no shutdown
-!
-interface FastEthernet0/4
- description Uplink to HQ-SW02
- switchport trunk encapsulation dot1q
- switchport mode trunk
- switchport nonegotiate
- switchport trunk allowed vlan 10,20,30,40
- switchport trunk native vlan 50
- no shutdown
-!
 vtp mode server
 vtp domain RECOMP2627M1B03 
 vtp password RECOMP_2026#
@@ -126,5 +108,22 @@ interface range FastEthernet0/5-24, GigabitEthernet0/2
  switchport mode access
  switchport access vlan 99
 !
+interface FastEthernet0/3
+ description Uplink to HQ-SW01
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50
+ no shutdown
+!
+interface FastEthernet0/4
+ description Uplink to HQ-SW02
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport nonegotiate
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50
+ no shutdown
+!
 end
-

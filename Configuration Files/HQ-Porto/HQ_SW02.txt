@@ -91,4 +91,3 @@ interface range FastEthernet0/1-2, FastEthernet0/21-24, GigabitEthernet0/1-2
  shutdown
 !
 end
-

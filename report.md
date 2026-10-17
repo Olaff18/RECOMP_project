@@ -18,6 +18,7 @@
 ---
 
 ## 1. Oporto (HQ)
+## 1. Oporto (HQ)
 
 ![](sites/oporto.jpg)
 
@@ -46,63 +47,63 @@
 
 #### 1.2.2 MLS1
 
-| Interface     | Assigned IP  | Subnet Mask | Purpose                                    |
-| ------------- | ------------ | ----------- | ------------------------------------------ |
-| Gig0/1        | 10.42.59.194 | /30         | Link to HQ (Oporto)                        |
-| Gig0/2        | —            | —           | Unused (VLAN 99, shutdown)                 |
-| Port-channel1 | —            | —           | Trunk to MLS2 (LACP)                       |
-| Fa0/1         | —            | —           | Po1 member – to MLS2                       |
-| Fa0/2         | —            | —           | Po1 member – to MLS2                       |
-| Fa0/3         | —            | —           | Trunk to SW1                               |
-| Fa0/4         | —            | —           | Trunk to SW2                               |
-| Fa0/5–24      | —            | —           | Unused (VLAN 99, shutdown)                 |
-| VLAN10        | 10.42.59.129 | /26         | STAFF SVI (HSRP VIP .190, active)          |
-| VLAN20        | 10.42.58.1   | /24         | ACCOUNTING SVI (HSRP VIP .254, active)     |
-| VLAN30        | 10.42.59.1   | /25         | HR SVI (HSRP VIP .126, standby)            |
-| VLAN40        | 10.42.56.1   | /23         | USERS SVI (HSRP VIP 10.42.57.254, standby) |
+| Interface        | Assigned IP  | Subnet Mask | Purpose                          |
+| ---------------- | ------------ | ----------- | -------------------------------- |
+| Gig0/1           | 10.42.59.194 | /30         | Link to HQ (Oporto)              |
+| Gig0/2           | —            | —           | Unused (VLAN 99, shutdown)           |
+| Port-channel1    | —            | —           | Trunk to MLS2 (LACP)             |
+| Fa0/1            | —            | —           | Po1 member – to MLS2             |
+| Fa0/2            | —            | —           | Po1 member – to MLS2             |
+| Fa0/3            | —            | —           | Trunk to SW1                     |
+| Fa0/4            | —            | —           | Trunk to SW2                     |
+| Fa0/5–24         | —            | —           | Unused (VLAN 99, shutdown)           |
+| VLAN10           | 10.42.59.129 | /26         | STAFF SVI (HSRP VIP .190, active) |
+| VLAN20           | 10.42.58.1   | /24         | ACCOUNTING SVI (HSRP VIP .254, active) |
+| VLAN30           | 10.42.59.1   | /25         | HR SVI (HSRP VIP .126, standby)  |
+| VLAN40           | 10.42.56.1   | /23         | USERS SVI (HSRP VIP 10.42.57.254, standby) |
 
 #### 1.2.3 MLS2
 
-| Interface     | Assigned IP  | Subnet Mask | Purpose                                   |
-| ------------- | ------------ | ----------- | ----------------------------------------- |
-| Gig0/1        | 10.42.59.198 | /30         | Link to HQ (Oporto)                       |
-| Gig0/2        | —            | —           | Unused (VLAN 99, shutdown)                |
-| Port-channel1 | —            | —           | Trunk to MLS1 (LACP)                      |
-| Fa0/1         | —            | —           | Po1 member – to MLS1                      |
-| Fa0/2         | —            | —           | Po1 member – to MLS1                      |
-| Fa0/3         | —            | —           | Trunk to SW1                              |
-| Fa0/4         | —            | —           | Trunk to SW2                              |
-| Fa0/5–24      | —            | —           | Unused (VLAN 99, shutdown)                |
-| VLAN10        | 10.42.59.130 | /26         | STAFF SVI (HSRP VIP .190, standby)        |
-| VLAN20        | 10.42.58.2   | /24         | ACCOUNTING SVI (HSRP VIP .254, standby)   |
-| VLAN30        | 10.42.59.2   | /25         | HR SVI (HSRP VIP .126, active)            |
-| VLAN40        | 10.42.56.2   | /23         | USERS SVI (HSRP VIP 10.42.57.254, active) |
+| Interface        | Assigned IP  | Subnet Mask | Purpose                          |
+| ---------------- | ------------ | ----------- | -------------------------------- |
+| Gig0/1           | 10.42.59.198 | /30         | Link to HQ (Oporto)              |
+| Gig0/2           | —            | —           | Unused (VLAN 99, shutdown)           |
+| Port-channel1    | —            | —           | Trunk to MLS1 (LACP)             |
+| Fa0/1            | —            | —           | Po1 member – to MLS1             |
+| Fa0/2            | —            | —           | Po1 member – to MLS1             |
+| Fa0/3            | —            | —           | Trunk to SW1                     |
+| Fa0/4            | —            | —           | Trunk to SW2                     |
+| Fa0/5–24         | —            | —           | Unused (VLAN 99, shutdown)           |
+| VLAN10           | 10.42.59.130 | /26         | STAFF SVI (HSRP VIP .190, standby) |
+| VLAN20           | 10.42.58.2   | /24         | ACCOUNTING SVI (HSRP VIP .254, standby) |
+| VLAN30           | 10.42.59.2   | /25         | HR SVI (HSRP VIP .126, active)   |
+| VLAN40           | 10.42.56.2   | /23         | USERS SVI (HSRP VIP 10.42.57.254, active) |
 
 #### 1.2.4 SW1
 
-| Interface           | Purpose                     |
-| ------------------- | --------------------------- |
-| Fa0/1–2             | Unused (VLAN 99, shutdown)  |
-| Fa0/3               | Trunk to MLS1               |
-| Fa0/4               | Trunk to MLS2               |
-| Fa0/5–8             | Access – VLAN 10 STAFF      |
+| Interface           | Purpose                  |
+| ------------------- | ------------------------ |
+| Fa0/1–2             | Unused (VLAN 99, shutdown)   |
+| Fa0/3               | Trunk to MLS1            |
+| Fa0/4               | Trunk to MLS2            |
+| Fa0/5–8             | Access – VLAN 10 STAFF   |
 | Fa0/9–12            | Access – VLAN 20 ACCOUNTING |
-| Fa0/13–16           | Access – VLAN 30 HR         |
-| Fa0/17–20           | Access – VLAN 40 USERS      |
-| Fa0/21–24, Gig0/1–2 | Unused (VLAN 99, shutdown)  |
+| Fa0/13–16           | Access – VLAN 30 HR      |
+| Fa0/17–20           | Access – VLAN 40 USERS   |
+| Fa0/21–24, Gig0/1–2 | Unused (VLAN 99, shutdown)   |
 
 #### 1.2.5 SW2
 
-| Interface           | Purpose                     |
-| ------------------- | --------------------------- |
-| Fa0/1–2             | Unused (VLAN 99, shutdown)  |
-| Fa0/3               | Trunk to MLS1               |
-| Fa0/4               | Trunk to MLS2               |
-| Fa0/5–8             | Access – VLAN 10 STAFF      |
+| Interface           | Purpose                  |
+| ------------------- | ------------------------ |
+| Fa0/1–2             | Unused (VLAN 99, shutdown)   |
+| Fa0/3               | Trunk to MLS1            |
+| Fa0/4               | Trunk to MLS2            |
+| Fa0/5–8             | Access – VLAN 10 STAFF   |
 | Fa0/9–12            | Access – VLAN 20 ACCOUNTING |
-| Fa0/13–16           | Access – VLAN 30 HR         |
-| Fa0/17–20           | Access – VLAN 40 USERS      |
-| Fa0/21–24, Gig0/1–2 | Unused (VLAN 99, shutdown)  |
+| Fa0/13–16           | Access – VLAN 30 HR      |
+| Fa0/17–20           | Access – VLAN 40 USERS   |
+| Fa0/21–24, Gig0/1–2 | Unused (VLAN 99, shutdown)   |
 
 #### 1.2.6 Oporto-STAFF
 
@@ -137,7 +138,471 @@
 | HQ PC (STAFF) | HQ PC (HR)         | `ping`    | Success |
 | HQ PC (STAFF) | HQ PC (USERS)      | `ping`    | Success |
 
-### 1.4 Implementation & Testing
+### 1.4 Implementation & Testing 
+
+#### 1.4.1 VLAN's configuration and connections
+
+First we started by configuring the trunk serving as the link between the MLS switches, with the following configuration in both switches:
+
+    interface PortChannel 1
+     description InterSwitch Link - Aggregated Link
+     switchport nonegotiate
+     switchport trunk encapsulation dot1q
+     switchport mode trunk
+     switchport trunk allowed vlan 10,20,30,40
+     switchport trunk native vlan 50 
+     no shutdown
+    !
+    interface range FastEthernet0/1-2
+     description InterSwitch Link
+     channel-group 1 mode active
+    !
+
+From top to bottom, we did executed the following:
+- Created a *PortChannel* interface which holds all the configurations for the link
+- Inside the interface configuration mode, we:
+    - Disabled DTP with the command *switchport nonegotiate*, mitigating possible VLAN hopping attacks.
+    - Enabled the *802.1Q* encapsulation on the interface.
+    - Set the interface mode to *trunk* and specified the allowed vlans, as well as the native vlan, for untagged traffic going through this interface.
+- Configured the interfaces *FastEthernet0/1* and *FastEthernet0/2* to join the previously created *PortChannel* interface using *LACP*, because it is a *non-proprietary* protocol, which gives us the possibility to add equipment from another vendor, in the future.
+
+For verification purposes we executed the following commands: 
+
+- *show etherchannel summary* to have an overview of all the etherchannels configured.
+- *show interface trunk* to verify if the interface is really in trunk mode and what VLANs are allowed.
+
+![](prints/Oporto/ISL-Oporto.png)
+
+
+After that, the *VTP* domain was created, with the following configuration snippet:
+
+    vtp mode server
+    vtp domain RECOMP2627M1B03 
+    vtp password RECOMP_2026#
+    !
+    vlan 10 
+     name STAFF
+    !
+    vlan 20
+     name ACCOUNTING
+    !
+    vlan 30
+     name HR
+    !
+    vlan 40
+     name USERS
+    !
+    vlan 50 
+     name NATIVE
+    !
+    vlan 99
+     name BLACKHOLE
+    !
+
+In this section, we did the following:
+- Set the switch to *VTP server* mode, so it can add, edit and remove VLANs and share these changes with the other switches in the domain.
+- Joined the *RECOMP2627M1B03* VTP domain, since switches only exchange VLAN information with others in the same domain.
+- Added a VTP password, so only switches with the same password can join the domain, preventing rogue devices from changing the VLAN database.
+- Created and named the VLANs. These are only created on this switch, as VTP takes care of propagating them to the rest of the network.
+
+*MLS2* is also a *VTP server* in the same domain, acting as a backup. If *MLS1* fails, VLANs can still be managed from *MLS2*. *SW1* and *SW2* are *VTP clients*, so they learn the VLANs automatically from the servers.
+
+To know which VLAN information is the newest, VTP uses a *configuration revision number*. Each change on a server increases it by one, and switches only accept updates with a higher number than their own. 
+
+To verify that VTP was correctly implemented, two tests were performed:
+
+- We executed the command *show vtp status* on *MLS1*, the Primary VTP server, to check its current VTP role:
+
+![](prints/Oporto/VTP-MLS1.png)
+
+As shown, the device is operating as a server in the correct VTP domain.
+
+- On one of the Layer 2 switches, we ran the same command to confirm that its configuration revision number matches the one on the server. We then tried to create a VLAN, expecting the operation to fail.
+
+![](prints/Oporto/VTP-L2.png)
+
+The output matches the expected behaviour, confirming that VTP was properly configured.
+
+#### 1.4.2 Rapid Spanning Tree Protocol
+
+To configure Rapid-PVST+ and the root bridge roles, we did the following:
+- Changed the spanning tree mode to *Rapid-PVST+* on all switches.
+- On *MLS1*, made it the root bridge for VLANs 10 and 20 with the *root primary* command, and the backup root for VLANs 30 and 40 with *root secondary*.
+- On *MLS2*, applied the opposite configuration, making it the root bridge for VLANs 30 and 40 and the backup root for VLANs 10 and 20.
+- On *SW1* and *SW2*, only set the spanning tree mode, keeping the default priority (32768) so they never compete with the MLSs in the root election.
+
+As we can see in the next samples of config:
+
+- HQ_MLS1
+
+```
+spanning-tree mode rapid-pvst
+!
+spanning-tree vlan 10 root primary
+spanning-tree vlan 20 root primary
+spanning-tree vlan 30 root secondary
+spanning-tree vlan 40 root secondary
+```
+
+- HQ_MLS2
+
+```
+spanning-tree mode rapid-pvst
+!
+spanning-tree vlan 10 root secondary
+spanning-tree vlan 20 root secondary
+spanning-tree vlan 30 root primary
+spanning-tree vlan 40 root primary
+```
+
+- HQ_SW01 / HQ_SW02
+
+```
+spanning-tree mode rapid-pvst
+```
+
+To confirm that the configuration was correctly applied, three tests were carried out:
+
+- On *MLS1*, we ran the command *show spanning-tree vlan 10* to check whether it had been elected as the root bridge for this VLAN:
+
+![](prints/Oporto/STP-MLS1.png)
+
+The output shows the message *This bridge is the root*, along with a lowered bridge priority, confirming that *MLS1* is the root bridge for VLAN 10 and by consequence of VLAN 20 as well.
+
+- On *MLS2*, we ran *show spanning-tree vlan 30* to make sure the opposite roles were in place:
+
+![](prints/Oporto/STP-MLS2.png)
+
+Once again, the device is identified as the root bridge, this time for VLAN's 30 and 40, as intended.
+
+- Finally, on one of the Layer 2 switches, we used *show spanning-tree summary* to verify the spanning tree mode in use:
+
+![](prints/Oporto/STP-L2.png)
+
+The switch is running in *rapid-pvst* mode, showing that the configuration was applied across the network.
+
+With these results, we can conclude that Rapid-PVST+ is working as planned, with the root bridge roles correctly split between both MLSs, providing load balancing and redundancy.
+
+#### 1.4.3 Configure HSRP
+
+To configure the SVIs, HSRP and the routed ports, we did the following:
+- Enabled IP routing on both MLSs with the command *ip routing*, allowing them to route traffic between VLANs and towards the rest of the network.
+- Created an SVI for each user VLAN (10, 20, 30 and 40) on both MLSs and assigned them the addresses defined in the addressing scheme. *MLS1* uses the first usable address of each subnet and *MLS2* the second.
+- Configured HSRP on each SVI:
+    - Set *HSRP version 2*, which supports a larger range of group numbers, allowing each group to match its VLAN ID.
+    - Defined a virtual IP for each group, using the last usable address of the subnet. This is the address the hosts use as their default gateway, and it is shared by both MLSs.
+    - Set a priority of 150 (the default being 100) on the MLS that is the STP root bridge for that VLAN, making it the active router: *MLS1* for VLANs 10 and 20, and *MLS2* for VLANs 30 and 40.
+    - Enabled *preempt* on all groups, so that when the preferred MLS recovers from a failure, it takes back the active role.
+- Converted *GigabitEthernet0/1* into a routed port with the command *no switchport* and assigned it an IP address from a /30 subnet, creating a point-to-point link from each MLS towards the HQ.
+
+Matching the HSRP active router with the STP root bridge ensures that traffic from each VLAN reaches its gateway through the most direct path, without crossing the link between the two MLSs unnecessarily. If one MLS fails, the other takes over both the gateway and root roles, keeping the network available.
+
+- HQ_MLS1
+
+```
+ip routing
+!
+interface Vlan10
+ description STAFF
+ ip address 10.42.59.129 255.255.255.192
+ standby version 2
+ standby 10 ip 10.42.59.190
+ standby 10 priority 150
+ standby 10 preempt
+ no shutdown
+!
+interface Vlan20
+ description ACCOUNTING
+ ip address 10.42.58.1 255.255.255.0
+ standby version 2
+ standby 20 ip 10.42.58.254
+ standby 20 priority 150
+ standby 20 preempt
+ no shutdown
+!
+interface Vlan30
+ description HR
+ ip address 10.42.59.1 255.255.255.128
+ standby version 2
+ standby 30 ip 10.42.59.126
+ standby 30 preempt
+ no shutdown
+!
+interface Vlan40
+ description USERS
+ ip address 10.42.56.1 255.255.254.0
+ standby version 2
+ standby 40 ip 10.42.57.254
+ standby 40 preempt
+ no shutdown
+!
+interface GigabitEthernet0/1
+ no switchport
+ ip address 10.42.59.194 255.255.255.252
+ no shutdown
+```
+
+- HQ_MLS2
+
+```
+ip routing
+!
+interface Vlan10
+ description STAFF
+ ip address 10.42.59.130 255.255.255.192
+ standby version 2
+ standby 10 ip 10.42.59.190
+ standby 10 preempt
+ no shutdown
+!
+interface Vlan20
+ description ACCOUNTING
+ ip address 10.42.58.2 255.255.255.0
+ standby version 2
+ standby 20 ip 10.42.58.254
+ standby 20 preempt
+ no shutdown
+!
+interface Vlan30
+ description HR
+ ip address 10.42.59.2 255.255.255.128
+ standby version 2
+ standby 30 ip 10.42.59.126
+ standby 30 priority 150
+ standby 30 preempt
+ no shutdown
+!
+interface Vlan40
+ description USERS
+ ip address 10.42.56.2 255.255.254.0
+ standby version 2
+ standby 40 ip 10.42.57.254
+ standby 40 priority 150
+ standby 40 preempt
+ no shutdown
+!
+interface GigabitEthernet0/1
+ no switchport
+ ip address 10.42.59.198 255.255.255.252
+ no shutdown
+```
+
+To confirm that the configuration was correctly applied, the following tests were carried out:
+
+- On *MLS1*, we ran the command *show standby brief* to check the HSRP state of each group:
+
+![](prints/Oporto/HSRP-MLS1.png)
+
+*MLS1* is shown as *Active* for groups 10 and 20 and as *Standby* for groups 30 and 40, matching its STP root roles.
+
+- On *MLS2*, we ran the same command to confirm the opposite roles:
+
+![](prints/Oporto/HSRP-MLS2.png)
+
+As expected, *MLS2* is *Active* for groups 30 and 40 and *Standby* for groups 10 and 20.
+
+- To test the redundancy, we shut down the *VLAN 10* SVI on *MLS1* and ran the command *show standby brief* on *MLS2*, expecting it to take over the active role for this VLAN:
+
+![](prints/Oporto/HSRP-Failover.png)
+
+- Finally, we ran *show ip interface brief* on both MLSs to verify the routed ports:
+
+    - MLS1
+
+    ![](prints/Oporto/Routed-MLS1.png)
+
+    - MLS2
+
+    ![](prints/Oporto/Routed-MLS2.png)
+
+#### 1.4.4 Configure Layer 2 Switch
+
+To configure the ports on both Layer 2 switches, we did the following:
+- Grouped the access ports by department using the *interface range* command and assigned each group to its VLAN:
+    - *FastEthernet0/5–8* to *VLAN 10 (STAFF)*;
+    - *FastEthernet0/9–12* to *VLAN 20 (ACCOUNTING)*;
+    - *FastEthernet0/13–16* to *VLAN 30 (HR)*;
+    - *FastEthernet0/17–20* to *VLAN 40 (USERS)*.
+- Set these ports to *access* mode, so they only carry traffic from a single VLAN and never form a trunk.
+- Enabled port security on every access port:
+    - Limited each port to a *maximum of 1* MAC address, so only one device can be connected at a time.
+    - Used *sticky* learning, which makes the switch automatically learn the MAC address of the first connected device and save it to the running configuration.
+    - Set the violation mode to *shutdown*, putting the port in an *err-disabled* state if an unknown device is connected.
+- Enabled *PortFast*, allowing the ports to skip the spanning tree listening and learning stages and come up immediately, and *BPDU Guard*, which shuts the port down if it receives a BPDU, preventing unauthorized switches from being plugged in.
+- Configured the uplink ports *FastEthernet0/3* and *FastEthernet0/4*, which connect to *MLS1* and *MLS2*, as trunks and marked them as *trusted* for both *DHCP Snooping* and *Dynamic ARP Inspection*. Since DHCP Snooping and DAI are enabled for VLANs 10 to 40, all other ports are untrusted by default, meaning that only the uplinks, where the legitimate DHCP servers are located, can forward DHCP offers. This prevents rogue DHCP servers and ARP spoofing attacks from the access ports.
+- Assigned all remaining ports (*FastEthernet0/1–2*, *FastEthernet0/21–24* and *GigabitEthernet0/1–2*) to *VLAN 99 (BLACKHOLE)* and shut them down, so a device plugged into them has no network access.
+
+The same configuration was applied to both *SW1* and *SW2*.
+
+```
+ip dhcp snooping
+ip dhcp snooping vlan 10,20,30,40
+!
+ip arp inspection vlan 10,20,30,40
+!
+no ip dhcp snooping information option
+!
+interface FastEthernet0/3
+ description Uplink to HQ-MLS01
+ switchport mode trunk
+ switchport nonegotiate
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50
+ ip dhcp snooping trust
+ ip arp inspection trust
+ no shutdown
+!
+interface FastEthernet0/4
+ description Uplink to HQ-MLS02
+ switchport mode trunk
+ switchport nonegotiate
+ switchport trunk allowed vlan 10,20,30,40
+ switchport trunk native vlan 50
+ ip dhcp snooping trust
+ ip arp inspection trust
+ no shutdown
+!
+interface range FastEthernet0/5-8
+ description ACCESS PORTS - STAFF
+ switchport mode access
+ switchport access vlan 10
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security mac-address sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+interface range FastEthernet0/9-12
+ description ACCESS PORTS - ACCOUNTING
+ switchport mode access
+ switchport access vlan 20
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security mac-address sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+interface range FastEthernet0/13-16
+ description ACCESS PORTS - HR
+ switchport mode access
+ switchport access vlan 30
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security mac-address sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+interface range FastEthernet0/17-20
+ description ACCESS PORTS - USERS
+ switchport mode access
+ switchport access vlan 40
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security mac-address sticky
+ switchport port-security violation shutdown
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+interface range FastEthernet0/1-2, FastEthernet0/21-24, GigabitEthernet0/1-2
+ description NOT IN USE
+ switchport mode access
+ switchport access vlan 99
+ shutdown
+```
+
+#### 1.4.5 Configure DHCP
+
+To configure DHCP, we did the following on both *MLS1* and *MLS2*:
+- Excluded from the DHCP pools all addresses that are statically assigned, so they are never handed out to hosts:
+    - The SVI addresses of *MLS1* and *MLS2* in each VLAN (the first two usable addresses of each subnet);
+    - The HSRP virtual IP of each VLAN (the last usable address of each subnet).
+- Created a DHCP pool for each user VLAN (*STAFF_POOL*, *ACCOUNTING_POOL*, *HR_POOL* and *USERS_POOL*) and, inside each one:
+    - Defined the *network* according to the addressing scheme;
+    - Set the *default-router* to the HSRP virtual IP of the VLAN, instead of the real address of one of the MLSs. This way, the hosts keep the same gateway even if one of the switches fails;
+    - Set the *DNS server* to 8.8.8.8;
+    - Set the *domain name* to *RECOMP2627M1B03.recomp.com*.
+
+Since both MLSs have the same pools, either of them can answer DHCP requests, so hosts can still receive an address if one of the switches goes down. To avoid giving the same address to two hosts, the Cisco DHCP server sends a ping to an address before offering it, and skips it if it gets a reply.
+
+```
+ip dhcp excluded-address 10.42.59.129 10.42.59.130
+ip dhcp excluded-address 10.42.59.190
+!
+ip dhcp pool STAFF_POOL
+ network 10.42.59.128 255.255.255.192
+ default-router 10.42.59.190
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+!
+ip dhcp excluded-address 10.42.58.1 10.42.58.2
+ip dhcp excluded-address 10.42.58.254
+!
+ip dhcp pool ACCOUNTING_POOL
+ network 10.42.58.0 255.255.255.0
+ default-router 10.42.58.254
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+!
+ip dhcp excluded-address 10.42.59.1 10.42.59.2
+ip dhcp excluded-address 10.42.59.126
+!
+ip dhcp pool HR_POOL
+ network 10.42.59.0 255.255.255.128
+ default-router 10.42.59.126
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+!
+ip dhcp excluded-address 10.42.56.1 10.42.56.2
+ip dhcp excluded-address 10.42.57.254
+!
+ip dhcp pool USERS_POOL
+ network 10.42.56.0 255.255.254.0
+ default-router 10.42.57.254
+ dns-server 8.8.8.8
+ domain-name RECOMP2627M1B03.recomp.com
+```
+
+To confirm that DHCP was working correctly, the command *show ip dhcp bindings* was executed to see the DHCP leases
+
+![](prints/Oporto/DHCP-Leases.png)
+
+As presented in the previous image, the DHCP is working as expected.
+
+#### 1.4.6 Connectivity Tests
+
+- STAFF to ACCOUNTING
+
+![](prints/Oporto/STAFF-ACC.png)
+
+- STAFF to HR
+
+![](prints/Oporto/STAFF-HR.png)
+
+- STAFF to USERS
+
+![](prints/Oporto/STAFF-USERS.png)
+
+- ACCOUNTING to HR
+
+![](prints/Oporto/ACC-HR.png)
+
+- ACCOUNTING to USERS
+
+![](prints/Oporto/ACC-USERS.png)
+
+- HR to USERS
+
+![](prints/Oporto/HR-USERS.png)
+
+As is presented, connectivity between all networks was achieved.
+
 
 ---
 

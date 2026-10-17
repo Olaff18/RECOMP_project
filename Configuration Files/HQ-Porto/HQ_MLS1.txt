@@ -149,4 +149,3 @@ interface FastEthernet0/4
  no shutdown
 !
 end
-
