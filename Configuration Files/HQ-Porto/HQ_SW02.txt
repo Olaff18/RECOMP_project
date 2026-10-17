@@ -41,7 +41,7 @@ interface range FastEthernet0/5-8
  switchport access vlan 10
  switchport port-security
  switchport port-security maximum 1
- switchport port-security sticky
+ switchport port-security mac-address sticky
  switchport port-security violation shutdown
  spanning-tree portfast
  spanning-tree bpduguard enable
@@ -53,7 +53,7 @@ interface range FastEthernet0/9-12
  switchport access vlan 20
  switchport port-security
  switchport port-security maximum 1
- switchport port-security sticky
+ switchport port-security mac-address sticky
  switchport port-security violation shutdown
  spanning-tree portfast
  spanning-tree bpduguard enable
@@ -65,7 +65,7 @@ interface range FastEthernet0/13-16
  switchport access vlan 30
  switchport port-security
  switchport port-security maximum 1
- switchport port-security sticky
+ switchport port-security mac-address sticky
  switchport port-security violation shutdown
  spanning-tree portfast
  spanning-tree bpduguard enable
@@ -77,7 +77,7 @@ interface range FastEthernet0/17-20
  switchport access vlan 40
  switchport port-security
  switchport port-security maximum 1
- switchport port-security sticky
+ switchport port-security mac-address sticky
  switchport port-security violation shutdown
  spanning-tree portfast
  spanning-tree bpduguard enable
