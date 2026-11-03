@@ -1,0 +1,35 @@
+HQ
+
+router eigrp 1 
+network 10.0.0.4 0.0.0.3
+network 10.0.0.8 0.0.0.3
+
+BR2 Munich
+
+router eigrp 1
+network 10.0.0.4 0.0.0.3
+network 192.186.167.32 0.0.0.15 
+network 192.186.167.0 0.0.0.31 
+network 192.186.167.48 0.0.0.15 
+network 192.186.167.64 0.0.0.3
+
+Campus1 Munich
+
+router eigrp 1
+network 192.186.167.64 0.0.0.3
+network 192.186.166.0 0.0.0.255
+
+Vault 
+
+router eigrp 1
+network 10.0.0.8 0.0.0.3
+
+
+Redistribution - HQ-RT1
+
+router ospf 1
+redistribute eigrp 1 subnets
+!
+router eigrp 1
+redistribute ospf 1 metric 10000 1 255 1 1500
+!
