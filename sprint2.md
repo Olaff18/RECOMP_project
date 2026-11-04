@@ -1,3 +1,337 @@
+## 1. Routing Configuration Between Branches
+
+### 1.1 Edge routers (Oporto and Warsaw)
+
+In Sprint 1, the Oporto and Warsaw routers received their Internet address and gateway through DHCP. The DHCP client installs a default route with administrative distance 254, shown as `S* 0.0.0.0/0 [254/0]`. 
+
+The task asks for a manually configured static default route using the same gateway, which has the default administrative distance 1 (the DHCP-installed one has 254). The static route is present in the running configuration of both routers; `show ip route` in Packet Tracer still lists the DHCP entry (`[254/0]`) for the same gateway. 
+
+When the static route is entered manually the entry is shown as `[1/0]`, but after Packet Tracer is restarted the table goes back to `[254/0]` on both routers, which is what Figures 3 and 9 show.
+
+In both cases the next hop is the gateway received from DHCP (209.165.200.158 on Oporto, 192.0.2.110 on BR1), so the forwarding and the tests in section 1.3 are the same.
+
+The gateways were taken from `show ip route` and `show dhcp lease`:
+
+| Router       | Internet interface | DHCP address       | Gateway (SP)    |
+| ------------ | ------------------ | ------------------ | --------------- |
+| Oporto (HQ)  | Gig0/0/0           | 209.165.200.129/27 | 209.165.200.158 |
+| BR1 (Warsaw) | Gig0/0/0           | 192.0.2.97/28      | 192.0.2.110     |
+
+![Oporto: show dhcp lease](prints/routing_configuration_between_branches/oporto_show_dhcp_lease.png)
+
+*Figure 1: `show dhcp lease` on Oporto. Address 209.165.200.129, default gateway 209.165.200.158.*
+
+![BR1: show dhcp lease](prints/routing_configuration_between_branches/br1_show_dhcp_lease.png)
+
+*Figure 2: `show dhcp lease` on BR1 (Warsaw). Address 192.0.2.97, default gateway 192.0.2.110.*
+
+Munich (BR2) and The Vault already have static default routes from Sprint 1 (to 193.136.60.150 and 203.0.113.1 respectively), so they need no change.
+
+**Oporto**
+
+```
+ip route 0.0.0.0 0.0.0.0 209.165.200.158
+```
+
+**BR1 (Warsaw)**
+
+```
+ip route 0.0.0.0 0.0.0.0 192.0.2.110
+```
+
+### 1.2 Multilayer switches
+
+Every MLS needs `ip routing` and a default route towards its router, so traffic for unknown destinations leaves the site.
+
+**Oporto.** Each MLS points to the HQ end of its point-to-point link:
+
+| Device | Next hop     | Link                        |
+| ------ | ------------ | --------------------------- |
+| MLS1   | 10.42.59.193 | HQ Gig0/0 (10.42.59.192/30) |
+| MLS2   | 10.42.59.197 | HQ Gig0/1 (10.42.59.196/30) |
+
+```
+! MLS1
+ip routing
+ip route 0.0.0.0 0.0.0.0 10.42.59.193
+
+! MLS2
+ip routing
+ip route 0.0.0.0 0.0.0.0 10.42.59.197
+```
+
+**Warsaw.** MLS3 is the only switch connected to BR1. MLS4 and MLS5 reach it through the transit VLANs, as in Sprint 1 (Table 2.17):
+
+| Device | Next hop     | Link                            |
+| ------ | ------------ | ------------------------------- |
+| MLS3   | 172.23.69.82 | BR1 Gig0/0 (172.23.69.80/30)    |
+| MLS4   | 172.23.69.85 | MLS3 VLAN 100 (172.23.69.84/30) |
+| MLS5   | 172.23.69.89 | MLS3 VLAN 101 (172.23.69.88/30) |
+
+```
+! MLS3
+ip routing
+ip route 0.0.0.0 0.0.0.0 172.23.69.82
+
+! MLS4
+ip routing
+ip route 0.0.0.0 0.0.0.0 172.23.69.85
+
+! MLS5
+ip routing
+ip route 0.0.0.0 0.0.0.0 172.23.69.89
+```
+
+### 1.3 Verification
+
+The default routes were verified on every router and multilayer switch with `show ip route`, and with pings that can only succeed if the default route is used.
+
+#### Oporto (HQ router)
+
+The routing table shows the gateway of last resort 209.165.200.158 (`S*`), the same gateway received from DHCP. The links to MLS1 and MLS2 (10.42.59.192/30 and 10.42.59.196/30) and the three GRE tunnel subnets (section 2) are directly connected.
+
+![Oporto: show ip route](prints/routing_configuration_between_branches/oporto_show_ip_route.png)
+
+*Figure 3: `show ip route` on Oporto. The default route points to 209.165.200.158, the DHCP gateway.*
+
+The interface summary shows the HQ ends of the MLS links (Gig0/0 10.42.59.193 and Gig0/1 10.42.59.197) and the DHCP address on Gig0/0/0 (209.165.200.129), all up/up.
+
+![Oporto: show ip interface brief](prints/routing_configuration_between_branches/oporto_show_ip_interface_brief.png)
+
+*Figure 4: `show ip interface brief` on Oporto.*
+
+Oporto reaches the service provider gateway and the Internet (`www.google.com` resolves to 8.8.8.8), and both MLS link partners (10.42.59.194 on the MLS1 link and 10.42.59.198 on the MLS2 link).
+
+![Oporto: ping 209.165.200.158](prints/routing_configuration_between_branches/oporto_ping_209_165_200_158.png)
+
+*Figure 5: `ping 209.165.200.158` (service provider gateway), 5/5.*
+
+![Oporto: ping www.google.com](prints/routing_configuration_between_branches/oporto_ping_google.png)
+
+*Figure 6: `ping www.google.com`, 5/5.*
+
+![Oporto: ping 10.42.59.194](prints/routing_configuration_between_branches/oporto_ping_10_42_59_194.png)
+
+*Figure 7: `ping 10.42.59.194` (MLS1 link), 5/5.*
+
+![Oporto: ping 10.42.59.198](prints/routing_configuration_between_branches/oporto_ping_10_42_59_198.png)
+
+*Figure 8: `ping 10.42.59.198` (MLS2 link), 5/5.*
+
+#### BR1 (Warsaw router)
+
+The routing table shows the gateway of last resort 192.0.2.110 (`S*`), the DHCP gateway, together with the route to the Warsaw LANs (172.23.68.0/23 via 172.23.69.81) from Sprint 1. BR1 reaches its service provider gateway, the Internet, and the MLS3 end of the 172.23.69.80/30 link.
+
+![BR1: show ip route](prints/routing_configuration_between_branches/br1_show_ip_route.png)
+
+*Figure 9: `show ip route` on BR1. The default route points to 192.0.2.110, the DHCP gateway.*
+
+![BR1: pings](prints/routing_configuration_between_branches/br1_pings.png)
+
+*Figure 10: pings from BR1 to 192.0.2.110 (service provider gateway), www.google.com and 172.23.69.81 (MLS3), all 5/5.*
+
+#### Multilayer switches
+
+Each MLS shows a default route `S* 0.0.0.0/0 [1/0]` through its next hop. The test pings go to the public address of the site router (209.165.200.129 for Oporto, 192.0.2.97 for BR1). That address is not on any network connected to the switch, so a successful reply shows that packets leave through the default route.
+
+The MLSs are not tested against the service provider gateways: their packets carry private source addresses and the provider has no route back to them, which only changes once NAT/PAT is configured.
+
+**MLS1.** Default route via 10.42.59.193 (HQ Gig0/0). Pings to the HQ end of the link and to Oporto's public address succeed.
+
+![MLS1: show ip route and pings](prints/routing_configuration_between_branches/mls1.png)
+
+*Figure 11: `show ip route`, `ping 10.42.59.193` and `ping 209.165.200.129` on MLS1.*
+
+**MLS2.** Default route via 10.42.59.197 (HQ Gig0/1). Pings to the HQ end of the link and to Oporto's public address succeed.
+
+![MLS2: show ip route and pings](prints/routing_configuration_between_branches/mls2.png)
+
+*Figure 12: `show ip route`, `ping 10.42.59.197` and `ping 209.165.200.129` on MLS2.*
+
+**MLS3.** Default route via 172.23.69.82 (BR1 Gig0/0). Pings to BR1 on the link and to BR1's public address succeed.
+
+![MLS3: show ip route and pings](prints/routing_configuration_between_branches/mls3.png)
+
+*Figure 13: `show ip route`, `ping 172.23.69.82` and `ping 192.0.2.97` on MLS3.*
+
+**MLS4.** Default route via 172.23.69.85 (MLS3, VLAN 100). The traceroute to BR1's public address goes through MLS3 (172.23.69.85) and then reaches BR1 (172.23.69.82).
+
+![MLS4: show ip route, pings and traceroute](prints/routing_configuration_between_branches/mls4.png)
+
+*Figure 14: `show ip route`, `ping 172.23.69.85`, `ping 192.0.2.97` and `traceroute 192.0.2.97` on MLS4.*
+
+**MLS5.** Default route via 172.23.69.89 (MLS3, VLAN 101). The traceroute to BR1's public address goes through MLS3 (172.23.69.89) and then reaches BR1 (172.23.69.82).
+
+![MLS5: show ip route, pings and traceroute](prints/routing_configuration_between_branches/mls5.png)
+
+*Figure 15: `show ip route`, `ping 172.23.69.89`, `ping 192.0.2.97` and `traceroute 192.0.2.97` on MLS5.*
+
+## 2. GRE Configuration
+
+### 2.1 Design
+
+Three GRE tunnels connect Oporto to each remote site. The tunnel source and destination are the public addresses of the routers' Internet interfaces, and the tunnel interfaces carry the private /30 networks. The three /30 subnets were taken from the first available blocks of 10.0.0.0/8:
+
+| Link                | Subnet      | Oporto side | Remote side       | Oporto interface |
+| ------------------- | ----------- | ----------- | ----------------- | ---------------- |
+| Oporto to Warsaw    | 10.0.0.0/30 | 10.0.0.1    | 10.0.0.2 (BR1)    | Tunnel0          |
+| Oporto to Munich    | 10.0.0.4/30 | 10.0.0.5    | 10.0.0.6 (BR2)    | Tunnel1          |
+| Oporto to The Vault | 10.0.0.8/30 | 10.0.0.9    | 10.0.0.10 (Vault) | Tunnel2          |
+
+These ranges do not overlap with any address space assigned to the team (10.42.56.0/22, 172.23.68.0/23, 192.186.166.0/23, 10.31.111.0/24).
+
+**Tunnel endpoints (public addresses):**
+
+| Router       | Interface | Public IP       | Assignment |
+| ------------ | --------- | --------------- | ---------- |
+| Oporto       | Gig0/0/0  | 209.165.200.129 | DHCP       |
+| BR1 (Warsaw) | Gig0/0/0  | 192.0.2.97      | DHCP       |
+| BR2 (Munich) | Gig0/0/0  | 193.136.60.147  | Static     |
+| Vault        | Gig0/0/0  | 203.0.113.2     | Static     |
+
+### 2.2 Network addressing table
+
+| Network          | Mask                  | Network address | Broadcast | First host | Last host |
+| ---------------- | --------------------- | --------------- | --------- | ---------- | --------- |
+| Oporto to Warsaw | 255.255.255.252 (/30) | 10.0.0.0        | 10.0.0.3  | 10.0.0.1   | 10.0.0.2  |
+| Oporto to Munich | 255.255.255.252 (/30) | 10.0.0.4        | 10.0.0.7  | 10.0.0.5   | 10.0.0.6  |
+| Oporto to Vault  | 255.255.255.252 (/30) | 10.0.0.8        | 10.0.0.11 | 10.0.0.9   | 10.0.0.10 |
+
+### 2.3 Interface addressing table
+
+| Device | Interface | IP address | Mask | Purpose                 |
+| ------ | --------- | ---------- | ---- | ----------------------- |
+| Oporto | Tunnel0   | 10.0.0.1   | /30  | GRE tunnel to Warsaw    |
+| Oporto | Tunnel1   | 10.0.0.5   | /30  | GRE tunnel to Munich    |
+| Oporto | Tunnel2   | 10.0.0.9   | /30  | GRE tunnel to The Vault |
+| BR1    | Tunnel0   | 10.0.0.2   | /30  | GRE tunnel to Oporto    |
+| BR2    | Tunnel0   | 10.0.0.6   | /30  | GRE tunnel to Oporto    |
+| Vault  | Tunnel0   | 10.0.0.10  | /30  | GRE tunnel to Oporto    |
+
+### 2.4 Configuration
+
+Each tunnel is built the same way: a tunnel interface is created, given an address from its /30, and bound to a source interface and a destination address. GRE over IPv4 is the default tunnel mode, set explicitly with `tunnel mode gre ip`. Both ends of every tunnel must be configured, with source and destination mirrored.
+
+**Oporto (HQ)**
+
+```
+interface Tunnel0
+ ip address 10.0.0.1 255.255.255.252
+ tunnel source GigabitEthernet0/0/0
+ tunnel destination 192.0.2.97
+ tunnel mode gre ip
+ no shutdown
+!
+interface Tunnel1
+ ip address 10.0.0.5 255.255.255.252
+ tunnel source GigabitEthernet0/0/0
+ tunnel destination 193.136.60.147
+ tunnel mode gre ip
+ no shutdown
+!
+interface Tunnel2
+ ip address 10.0.0.9 255.255.255.252
+ tunnel source GigabitEthernet0/0/0
+ tunnel destination 203.0.113.2
+ tunnel mode gre ip
+ no shutdown
+```
+
+**BR1 (Warsaw)**
+
+```
+interface Tunnel0
+ ip address 10.0.0.2 255.255.255.252
+ tunnel source GigabitEthernet0/0/0
+ tunnel destination 209.165.200.129
+ tunnel mode gre ip
+ no shutdown
+```
+
+**BR2 (Munich)**
+
+```
+interface Tunnel0
+ ip address 10.0.0.6 255.255.255.252
+ tunnel source GigabitEthernet0/0/0
+ tunnel destination 209.165.200.129
+ tunnel mode gre ip
+ no shutdown
+```
+
+**The Vault**
+
+```
+interface Tunnel0
+ ip address 10.0.0.10 255.255.255.252
+ tunnel source GigabitEthernet0/0/0
+ tunnel destination 209.165.200.129
+ tunnel mode gre ip
+ no shutdown
+```
+
+### 2.5 Verification
+
+**Interface status on Oporto.** All three tunnels are up/up with their addresses, and the routing table shows each tunnel subnet as directly connected:
+
+![Oporto: show ip interface brief](prints/gre_configuration/oporto_show_ip_interface_brief.png)
+
+*Figure 16: `show ip interface brief` on Oporto. Tunnel0, Tunnel1 and Tunnel2 are up/up with 10.0.0.1, 10.0.0.5 and 10.0.0.9.*
+
+![Oporto: show ip route connected](prints/gre_configuration/oporto_show_ip_route_connected.png)
+
+*Figure 17: `show ip route connected` on Oporto. 10.0.0.0/30, 10.0.0.4/30 and 10.0.0.8/30 are connected to Tunnel0, Tunnel1 and Tunnel2.*
+
+**Tunnel details.** `show interfaces tunnel 0/1/2` confirms the correct source, destination and encapsulation:
+
+| Tunnel  | Source                     | Destination    | Protocol/transport |
+| ------- | -------------------------- | -------------- | ------------------ |
+| Tunnel0 | 209.165.200.129 (Gig0/0/0) | 192.0.2.97     | GRE/IP             |
+| Tunnel1 | 209.165.200.129 (Gig0/0/0) | 193.136.60.147 | GRE/IP             |
+| Tunnel2 | 209.165.200.129 (Gig0/0/0) | 203.0.113.2    | GRE/IP             |
+
+![Oporto: show interfaces tunnel 0](prints/gre_configuration/oporto_show_interfaces_tunnel_0.png)
+
+*Figure 18: `show interfaces tunnel 0` on Oporto (to Warsaw). Address 10.0.0.1/30, destination 192.0.2.97.*
+
+![Oporto: show interfaces tunnel 1](prints/gre_configuration/oporto_show_interfaces_tunnel_1.png)
+
+*Figure 19: `show interfaces tunnel 1` on Oporto (to Munich). Address 10.0.0.5/30, destination 193.136.60.147.*
+
+![Oporto: show interfaces tunnel 2](prints/gre_configuration/oporto_show_interfaces_tunnel_2.png)
+
+*Figure 20: `show interfaces tunnel 2` on Oporto (to The Vault). Address 10.0.0.9/30, destination 203.0.113.2.*
+
+No keepalive is configured, so up/up only shows that the local interface is enabled and the source is valid. It does not prove the far end is reachable. The end-to-end pings below are the real test.
+
+**End-to-end tests from Oporto:**
+
+| Test                            | Result     |
+| ------------------------------- | ---------- |
+| `ping 10.0.0.2` (Warsaw tunnel) | 5/5 (100%) |
+| `ping 10.0.0.6` (Munich tunnel) | 5/5 (100%) |
+| `ping 10.0.0.10` (Vault tunnel) | 5/5 (100%) |
+
+![Oporto: pings through the tunnels](prints/gre_configuration/oporto_pings.png)
+
+*Figure 21: pings from Oporto to the three remote tunnel addresses and `traceroute 10.0.0.2`.*
+
+The traceroute shows a single hop, 10.0.0.2. From Oporto the tunnel behaves as a direct point-to-point link, even though the packets cross the Internet encapsulated in GRE.
+
+**Remote end of each tunnel.** On BR1, BR2 and the Vault, Tunnel0 is up/up with its address from the /30, uses the router's own public address as source and Oporto's 209.165.200.129 as destination, and the transport is GRE/IP. A ping to the Oporto end of the tunnel succeeds from each of them (BR1 to 10.0.0.1, BR2 to 10.0.0.5, Vault to 10.0.0.9).
+
+![BR1: tunnel verification](prints/gre_configuration/br1.png)
+
+*Figure 22: `show ip interface brief`, `show interfaces tunnel 0` and `ping 10.0.0.1` on BR1 (Warsaw).*
+
+![BR2: tunnel verification](prints/gre_configuration/br2.png)
+
+*Figure 23: `show ip interface brief`, `show interfaces tunnel 0` and `ping 10.0.0.5` on BR2 (Munich).*
+
+![Vault: tunnel verification](prints/gre_configuration/vault_router.png)
+
+*Figure 24: `show ip interface brief`, `show interfaces tunnel 0` and `ping 10.0.0.9` on The Vault router.*
+
 ### 3. OSPF
 
 #### 3.1 OSPF Configuration

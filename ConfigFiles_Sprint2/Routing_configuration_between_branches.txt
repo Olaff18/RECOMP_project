@@ -1,0 +1,57 @@
+-- Oporto
+
+- HQ router
+
+enable
+configure terminal
+ip route 0.0.0.0 0.0.0.0 209.165.200.158
+end
+
+- MLS1
+
+enable
+configure terminal
+ip routing
+ip route 0.0.0.0 0.0.0.0 10.42.59.193
+end
+
+- MLS2
+
+enable
+configure terminal
+ip routing
+ip route 0.0.0.0 0.0.0.0 10.42.59.197
+end
+
+-- Warsaw
+
+- BR1 (Warsaw router)
+
+enable
+configure terminal
+ip route 0.0.0.0 0.0.0.0 192.0.2.110
+end
+
+- MLS3
+
+enable
+configure terminal
+ip routing
+ip route 0.0.0.0 0.0.0.0 172.23.69.82
+end
+
+- MLS4
+
+enable
+configure terminal
+ip routing
+ip route 0.0.0.0 0.0.0.0 172.23.69.85
+end
+
+- MLS5
+
+enable
+configure terminal
+ip routing
+ip route 0.0.0.0 0.0.0.0 172.23.69.89
+end
