@@ -430,23 +430,23 @@ To confirm that OSPF was correctly configured, the following tests were carried 
 
 - On *RT Oporto*, we ran the command *show ip ospf neighbor* to check that adjacencies were formed with *MLS1*, *MLS2* and, through the tunnel, with *RT Warsaw*:
 
-![](prints/Routing/OSPF-Neighbors-Oporto.png)
+![](prints/routing/OSPF-Neighbors-Oporto.png)
 
 All neighbours are in the *FULL* state, identified by the router-ids configured above.
 
 - On *RT Warsaw*, we ran the same command to confirm the adjacencies with *MLS3* and *RT Oporto*:
 
-![](prints/Routing/OSPF-Neighbors-Warsaw.png)
+![](prints/routing/OSPF-Neighbors-Warsaw.png)
 
 - On *RT Oporto*, we ran *show ip route ospf* to verify that Warsaw's networks were being learned:
 
-![](prints/Routing/OSPF-Routes-Oporto.png)
+![](prints/routing/OSPF-Routes-Oporto.png)
 
 Warsaw's local networks appear as *O IA* (inter-area) routes, which is the expected result, since they belong to area 2 and are advertised into the backbone by *MLS4* and *MLS5*.
 
 - On one of the ABRs, we ran *show ip ospf* to confirm that it is participating in both areas:
 
-![](prints/Routing/OSPF-ABR.png)
+![](prints/routing/OSPF-ABR.png)
 
 The output identifies the device as an *area border router* with interfaces in area 0 and in its local area.
 
@@ -454,7 +454,7 @@ The output identifies the device as an *area border router* with interfaces in a
 
 - Oporto to Warsaw
 
-![](prints/Routing/Oporto-Warsaw.png)
+![](prints/routing/Oporto-Warsaw.png)
 
 As is presented, connectivity between the hosts in Oporto and Warsaw was achieved through the OSPF backbone.
 
@@ -509,15 +509,15 @@ To confirm that EIGRP was correctly configured, the following tests were carried
 
 - On *RT Oporto*, we ran the command *show ip eigrp neighbors* to check that neighbour relationships were formed with *BR2 Munich* and the *Vault* through the tunnel interfaces:
 
-![](prints/Routing/EIGRP-Neighbors-Oporto.png)
+![](prints/routing/EIGRP-Neighbors-Oporto.png)
 
 - On *BR2 Munich*, we ran the same command to confirm the adjacencies with *RT Oporto* and *Campus1 Munich*:
 
-![](prints/Routing/EIGRP-Neighbors-Munich.png)
+![](prints/routing/EIGRP-Neighbors-Munich.png)
 
 - On *RT Oporto*, we ran *show ip route eigrp* to verify that Munich's networks were being learned:
 
-![](prints/Routing/EIGRP-Routes-Oporto.png)
+![](prints/routing/EIGRP-Routes-Oporto.png)
 
 Munich's networks appear in the routing table with the code *D*, meaning they were learned through EIGRP.
 
@@ -549,13 +549,13 @@ To confirm that redistribution was working, the following tests were carried out
 
 - On *RT Warsaw*, we ran the command *show ip route ospf 1 | include E2* to verify that Munich's and the Vault's networks were being learned:
 
-![](prints/Routing/Redistribution-Warsaw.png)
+![](prints/routing/Redistribution-Warsaw.png)
 
 These networks appear as *O E2* routes, meaning they are external routes injected into OSPF by an ASBR, in this case *RT Oporto*.
 
 - On *BR2 Munich*, we ran the command *show ip route eigrp* to verify that Oporto's and Warsaw's networks were being learned:
 
-![](prints/Routing/Redistribution-Munich.png)
+![](prints/routing/Redistribution-Munich.png)
 
 These networks appear as *D EX* routes, meaning they are external routes redistributed into EIGRP.
 
@@ -563,18 +563,18 @@ These networks appear as *D EX* routes, meaning they are external routes redistr
 
 - Oporto HR to Munich USERS
 
-![](prints/Routing/Oporto-Munich.png)
+![](prints/routing/Oporto-Munich.png)
 
 - Warsaw USERS to Munich ACCOUNTING
 
-![](prints/Routing/Warsaw-Munich.png)
+![](prints/routing/Warsaw-Munich.png)
 
 - Munich (BR2 STAFF) to Munich (Campus1 Users)
 
-![](prints/Routing/BR2-Campus1.png)
+![](prints/routing/BR2-Campus1.png)
 
 - Warsaw HR to the Vault
 
-![](prints/Routing/Warsaw-Vault.png)
+![](prints/routing/Warsaw-Vault.png)
 
 As is presented, connectivity between hosts in all locations was achieved.
