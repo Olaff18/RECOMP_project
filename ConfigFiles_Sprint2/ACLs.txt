@@ -1,0 +1,369 @@
+-- Oporto
+
+- HQ router (Oporto)
+
+enable
+configure terminal
+!
+ip access-list extended MLS1-IN
+ remark OSPF from MLS1
+ permit ospf host 10.42.59.194 any
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only Oporto sources may enter
+ permit ip 10.42.56.0 0.0.3.255 any
+ deny ip any any
+exit
+!
+ip access-list extended MLS2-IN
+ remark OSPF from MLS2
+ permit ospf host 10.42.59.198 any
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only Oporto sources may enter
+ permit ip 10.42.56.0 0.0.3.255 any
+ deny ip any any
+exit
+!
+ip access-list extended OUTSIDE-IN
+ remark DHCP replies from the SP (Gi0/0/0 is a DHCP client)
+ permit udp host 209.165.200.158 eq 67 any eq 68
+ remark External anti-spoofing: private, reserved and internal sources
+ deny ip 0.0.0.0 0.255.255.255 any
+ deny ip 10.0.0.0 0.255.255.255 any
+ deny ip 127.0.0.0 0.255.255.255 any
+ deny ip 169.254.0.0 0.0.255.255 any
+ deny ip 172.16.0.0 0.15.255.255 any
+ deny ip 192.168.0.0 0.0.255.255 any
+ deny ip 192.186.166.0 0.0.1.255 any
+ deny ip 224.0.0.0 15.255.255.255 any
+ deny ip 240.0.0.0 15.255.255.255 any
+ deny ip host 209.165.200.129 any
+ remark GRE from the tunnel peers (Warsaw, Munich, Vault)
+ permit gre host 192.0.2.97 host 209.165.200.129
+ permit gre host 193.136.60.147 host 209.165.200.129
+ permit gre host 203.0.113.2 host 209.165.200.129
+ remark Return traffic for PAT and for the router itself
+ permit icmp any host 209.165.200.129 echo-reply
+ permit icmp any host 209.165.200.129 ttl-exceeded
+ permit icmp any host 209.165.200.129 unreachable
+ permit tcp any host 209.165.200.129 established
+ permit udp host 8.8.8.8 eq 53 host 209.165.200.129
+ remark Block everything else addressed to this router
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 10.0.0.1
+ deny ip any host 10.0.0.5
+ deny ip any host 10.0.0.9
+ remark Allow all remaining transit traffic
+ permit ip any any
+exit
+!
+interface GigabitEthernet0/0
+ ip access-group MLS1-IN in
+exit
+interface GigabitEthernet0/1
+ ip access-group MLS2-IN in
+exit
+interface GigabitEthernet0/0/0
+ ip access-group OUTSIDE-IN in
+exit
+end
+write memory
+
+
+-- Warsaw
+
+- BR1 (Warsaw router)
+
+enable
+configure terminal
+!
+ip access-list extended MLS3-IN
+ remark OSPF from MLS3
+ permit ospf host 172.23.69.81 any
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only Warsaw sources may enter
+ permit ip 172.23.68.0 0.0.1.255 any
+ deny ip any any
+exit
+!
+ip access-list extended OUTSIDE-IN
+ remark DHCP replies from the SP (Gi0/0/0 is a DHCP client)
+ permit udp host 192.0.2.110 eq 67 any eq 68
+ remark External anti-spoofing: private, reserved and internal sources
+ deny ip 0.0.0.0 0.255.255.255 any
+ deny ip 10.0.0.0 0.255.255.255 any
+ deny ip 127.0.0.0 0.255.255.255 any
+ deny ip 169.254.0.0 0.0.255.255 any
+ deny ip 172.16.0.0 0.15.255.255 any
+ deny ip 192.168.0.0 0.0.255.255 any
+ deny ip 192.186.166.0 0.0.1.255 any
+ deny ip 224.0.0.0 15.255.255.255 any
+ deny ip 240.0.0.0 15.255.255.255 any
+ deny ip host 192.0.2.97 any
+ remark GRE from the HQ tunnel peer
+ permit gre host 209.165.200.129 host 192.0.2.97
+ remark Return traffic for PAT and for the router itself
+ permit icmp any host 192.0.2.97 echo-reply
+ permit icmp any host 192.0.2.97 ttl-exceeded
+ permit icmp any host 192.0.2.97 unreachable
+ permit tcp any host 192.0.2.97 established
+ permit udp host 8.8.8.8 eq 53 host 192.0.2.97
+ remark Block everything else addressed to this router
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 10.0.0.2
+ remark Allow all remaining transit traffic
+ permit ip any any
+exit
+!
+interface GigabitEthernet0/0
+ ip access-group MLS3-IN in
+exit
+interface GigabitEthernet0/0/0
+ ip access-group OUTSIDE-IN in
+exit
+end
+write memory
+
+
+-- Munich
+
+- BR2 (Munich router)
+
+enable
+configure terminal
+!
+ip access-list extended STAFF-IN
+ remark DHCP requests from clients without an address
+ permit udp host 0.0.0.0 eq 68 host 255.255.255.255 eq 67
+ remark DHCP renewals sent to the gateway
+ permit udp 192.186.167.32 0.0.0.15 eq 68 host 192.186.167.46 eq 67
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only STAFF sources may enter
+ permit ip 192.186.167.32 0.0.0.15 any
+ deny ip any any
+exit
+!
+ip access-list extended ACCOUNTING-IN
+ remark DHCP requests from clients without an address
+ permit udp host 0.0.0.0 eq 68 host 255.255.255.255 eq 67
+ remark DHCP renewals sent to the gateway
+ permit udp 192.186.167.0 0.0.0.31 eq 68 host 192.186.167.30 eq 67
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only ACCOUNTING sources may enter
+ permit ip 192.186.167.0 0.0.0.31 any
+ deny ip any any
+exit
+!
+ip access-list extended HR-IN
+ remark DHCP requests from clients without an address
+ permit udp host 0.0.0.0 eq 68 host 255.255.255.255 eq 67
+ remark DHCP renewals sent to the gateway
+ permit udp 192.186.167.48 0.0.0.15 eq 68 host 192.186.167.62 eq 67
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only HR sources may enter
+ permit ip 192.186.167.48 0.0.0.15 any
+ deny ip any any
+exit
+!
+ip access-list extended CAMPUS1-IN
+ remark EIGRP from Campus1
+ permit eigrp host 192.186.167.66 any
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only USERS and Campus1 sources may enter
+ permit ip 192.186.166.0 0.0.0.255 any
+ permit ip host 192.186.167.66 any
+ deny ip any any
+exit
+!
+ip access-list extended OUTSIDE-IN
+ remark External anti-spoofing: private, reserved and internal sources
+ deny ip 0.0.0.0 0.255.255.255 any
+ deny ip 10.0.0.0 0.255.255.255 any
+ deny ip 127.0.0.0 0.255.255.255 any
+ deny ip 169.254.0.0 0.0.255.255 any
+ deny ip 172.16.0.0 0.15.255.255 any
+ deny ip 192.168.0.0 0.0.255.255 any
+ deny ip 192.186.166.0 0.0.1.255 any
+ deny ip 224.0.0.0 15.255.255.255 any
+ deny ip 240.0.0.0 15.255.255.255 any
+ deny ip host 193.136.60.147 any
+ remark GRE from the HQ tunnel peer
+ permit gre host 209.165.200.129 host 193.136.60.147
+ remark Return traffic for PAT and for the router itself
+ permit icmp any host 193.136.60.147 echo-reply
+ permit icmp any host 193.136.60.147 ttl-exceeded
+ permit icmp any host 193.136.60.147 unreachable
+ permit tcp any host 193.136.60.147 established
+ permit udp host 8.8.8.8 eq 53 host 193.136.60.147
+ remark Block everything else addressed to this router
+ deny ip any host 193.136.60.147
+ deny ip any host 10.0.0.6
+ deny ip any host 192.186.167.65
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ remark Allow all remaining transit traffic
+ permit ip any any
+exit
+!
+interface GigabitEthernet0/0
+ ip access-group CAMPUS1-IN in
+exit
+interface GigabitEthernet0/1.10
+ ip access-group STAFF-IN in
+exit
+interface GigabitEthernet0/1.20
+ ip access-group ACCOUNTING-IN in
+exit
+interface GigabitEthernet0/1.30
+ ip access-group HR-IN in
+exit
+interface GigabitEthernet0/0/0
+ ip access-group OUTSIDE-IN in
+exit
+end
+write memory
+
+
+- Campus1 (Munich)
+
+enable
+configure terminal
+!
+ip access-list extended USERS-IN
+ remark DHCP requests from clients without an address
+ permit udp host 0.0.0.0 eq 68 host 255.255.255.255 eq 67
+ remark DHCP renewals sent to the gateway
+ permit udp 192.186.166.0 0.0.0.255 eq 68 host 192.186.166.254 eq 67
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only USERS sources may enter
+ permit ip 192.186.166.0 0.0.0.255 any
+ deny ip any any
+exit
+!
+ip access-list extended BR2-IN
+ remark EIGRP from BR2
+ permit eigrp host 192.186.167.65 any
+ remark Anti-spoofing: the USERS network never arrives from the BR2 side
+ deny ip 192.186.166.0 0.0.0.255 any
+ remark Block everything else addressed to this router
+ deny ip any host 192.186.167.66
+ deny ip any host 192.186.166.254
+ remark Allow all remaining transit traffic
+ permit ip any any
+exit
+!
+interface GigabitEthernet0/0
+ ip access-group BR2-IN in
+exit
+interface GigabitEthernet0/1
+ ip access-group USERS-IN in
+exit
+end
+write memory

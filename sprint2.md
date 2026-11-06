@@ -840,3 +840,313 @@ interface FastEthernet0/11
 ![SW7: show interfaces status](prints/port_security/SW7-interfaces-status.png)
 
 *`show interfaces status` on SW7.*
+
+
+## 7. Access Control Lists (ACLs)
+
+### 7.1 Requirements
+
+The project statement defines three requirements for the ACLs, to be applied, as far as possible, on all the routers of Oporto, Warsaw and Munich:
+
+- **Block spoofing:** internal spoofing, coming from the local networks, and external spoofing, in traffic coming in from the Internet.
+- **Protect the routers:** all traffic addressed to the routers must be blocked, except the traffic the current features need in order to work (GRE, DHCP, OSPF, EIGRP, among others).
+- **Allow transit traffic:** the remaining traffic passing through the routers must be allowed.
+
+The Vault is not mentioned in this requirement, so its router was left without ACLs.
+
+### 7.2 Design
+
+#### 7.2.1 Placement
+
+We used **named extended ACLs**, always applied **inbound**. This way, each packet is checked as soon as it reaches the router, before it is routed or translated, and the name of each ACL says where the traffic comes from. For example, *MLS1-IN* filters what enters *RT Oporto* coming from *MLS1*.
+
+| Router | Interface | ACL | Traffic filtered |
+|---|---|---|---|
+| RT Oporto (HQ) | Gi0/0 | MLS1-IN | From MLS1 (Oporto LAN) |
+| RT Oporto (HQ) | Gi0/1 | MLS2-IN | From MLS2 (Oporto LAN) |
+| RT Oporto (HQ) | Gi0/0/0 | OUTSIDE-IN | From the Internet |
+| RT Warsaw (BR1) | Gi0/0 | MLS3-IN | From MLS3 (Warsaw LAN) |
+| RT Warsaw (BR1) | Gi0/0/0 | OUTSIDE-IN | From the Internet |
+| BR2 Munich | Gi0/1.10 | STAFF-IN | From VLAN 10 (STAFF) |
+| BR2 Munich | Gi0/1.20 | ACCOUNTING-IN | From VLAN 20 (ACCOUNTING) |
+| BR2 Munich | Gi0/1.30 | HR-IN | From VLAN 30 (HR) |
+| BR2 Munich | Gi0/0 | CAMPUS1-IN | From Campus1 |
+| BR2 Munich | Gi0/0/0 | OUTSIDE-IN | From the Internet |
+| Campus1 Munich | Gi0/1 | USERS-IN | From VLAN 40 (USERS) |
+| Campus1 Munich | Gi0/0 | BR2-IN | From BR2 |
+
+**Packet Tracer limitation:** in Packet Tracer 8.2.2, the *Tunnel* interfaces only accept the *ip address* command, so it is not possible to apply an ACL to a GRE tunnel. Traffic that arrives at a router through a tunnel cannot be filtered there. To work around this, the traffic is filtered at its source:
+
+- Each LAN ACL blocks traffic addressed to **any** router of Oporto, Warsaw and Munich, and not only to the local router. A host in Warsaw cannot reach *RT Oporto* through the tunnel either, because its packet is dropped as soon as it enters *RT Warsaw*.
+- Each LAN ACL only accepts the local addresses as source. A spoofed packet never reaches a tunnel.
+
+#### 7.2.2 Internal anti-spoofing
+
+Each ACL facing a local network only accepts, as source, the addresses that really exist behind that interface. Any other source is dropped by the final *deny ip any any*:
+
+| ACL | Accepted sources |
+|---|---|
+| MLS1-IN, MLS2-IN | 10.42.56.0/22 (Oporto) |
+| MLS3-IN | 172.23.68.0/23 (Warsaw) |
+| STAFF-IN | 192.186.167.32/28 |
+| ACCOUNTING-IN | 192.186.167.0/27 |
+| HR-IN | 192.186.167.48/28 |
+| CAMPUS1-IN | 192.186.166.0/24 (USERS) and Campus1 itself (192.186.167.66) |
+| USERS-IN | 192.186.166.0/24 |
+
+On *Campus1*, the *BR2-IN* ACL does the opposite check: the USERS network (192.186.166.0/24) only exists behind Gi0/1, so a packet with that source arriving from *BR2* is spoofed and is dropped.
+
+#### 7.2.3 External anti-spoofing
+
+The *OUTSIDE-IN* ACLs drop any packet coming from the Internet whose source address could not be legitimate:
+
+| Source | Reason |
+|---|---|
+| 0.0.0.0/8 | "This network", never a valid source on the Internet |
+| 10.0.0.0/8 | Private (RFC 1918); also covers Oporto and the tunnels |
+| 127.0.0.0/8 | Loopback |
+| 169.254.0.0/16 | Link-local |
+| 172.16.0.0/12 | Private (RFC 1918); also covers Warsaw |
+| 192.168.0.0/16 | Private (RFC 1918) |
+| 192.186.166.0/23 | Munich's own address space |
+| 224.0.0.0/4 | Multicast, never a valid source |
+| 240.0.0.0/4 | Reserved |
+| The router's own public IP | A packet from the Internet can never come from the router itself |
+
+The documentation ranges 192.0.2.0/24 and 203.0.113.0/24 are normally blocked as well. In this topology, however, they are the real Service Provider addresses of Warsaw (192.0.2.97) and of the Vault (203.0.113.2). Blocking them would drop the GRE tunnels, so they were not included.
+
+#### 7.2.4 Traffic allowed to the routers
+
+Before blocking the traffic addressed to the routers, each ACL explicitly allows what the current features need:
+
+| Feature | Where | ACL line | Why it is needed |
+|---|---|---|---|
+| DHCP client | HQ and BR1, OUTSIDE-IN | `permit udp host <SP gateway> eq 67 any eq 68` | Gi0/0/0 gets its public IP from the SP by DHCP |
+| DHCP server | BR2 (VLANs 10/20/30) and Campus1 (USERS) | `permit udp host 0.0.0.0 eq 68 host 255.255.255.255 eq 67` | Requests from clients that still have no address |
+| DHCP server | Same | `permit udp <VLAN> eq 68 host <gateway> eq 67` | Renewals, sent by unicast to the gateway |
+| OSPF | HQ (MLS1-IN, MLS2-IN) and BR1 (MLS3-IN) | `permit ospf host <MLS> any` | OSPF neighbours on the router-MLS links |
+| EIGRP | BR2 (CAMPUS1-IN) and Campus1 (BR2-IN) | `permit eigrp host <neighbour> any` | EIGRP neighbours on the BR2-Campus1 link |
+| GRE | OUTSIDE-IN of all three sites | `permit gre host <peer public IP> host <own public IP>` | The tunnels end on the public IP. OSPF and EIGRP over the tunnels travel inside GRE, so this line also lets them through. |
+| PAT return and the router's own traffic | OUTSIDE-IN of all three sites | `echo-reply`, `ttl-exceeded`, `unreachable`, `tcp ... established`, `udp host 8.8.8.8 eq 53` | See below |
+
+The routing protocols and GRE are only accepted from the legitimate neighbour, never from any address.
+
+**PAT return traffic:** on the outside interface, the inbound ACL is processed **before** the NAT translation from outside to inside. The reply to a PC that went out through PAT therefore reaches the ACL with the router's public IP as destination, and would be dropped by the line that blocks traffic to the router. For this reason, the OUTSIDE-IN ACLs allow, to the public IP:
+
+- ICMP *echo-reply*, *ttl-exceeded* and *unreachable*: ping and traceroute replies;
+- TCP *established*: segments with the ACK or RST flag. A new connection opened from the Internet starts with a SYN without ACK, so it does not match this line and is dropped;
+- DNS replies from 8.8.8.8, the DNS server given to the hosts by DHCP.
+
+The same lines also cover the router's own traffic, such as `ping www.google.com` from the CLI.
+
+#### 7.2.5 Structure of each ACL
+
+- **LAN ACLs:** routing protocol and DHCP lines first, then *deny* to the IPs of all routers of Oporto, Warsaw and Munich, then *permit* for the local sources, and finally *deny ip any any*.
+- **OUTSIDE-IN ACLs:** DHCP (only on HQ and BR1), then *deny* for the spoofed sources, then *permit* for GRE and the PAT return, then *deny* for anything else addressed to the router's IPs, and finally *permit ip any any*, which allows all remaining transit traffic.
+
+The router addresses blocked in the LAN ACLs are:
+
+| Address | Router |
+|---|---|
+| 10.0.0.0/29 (10.0.0.1, .2, .5, .6) and 10.0.0.9 | Tunnel endpoints on HQ, BR1 and BR2 |
+| 209.165.200.129 | RT Oporto, public IP |
+| 10.42.59.193, 10.42.59.197 | RT Oporto, links to MLS1 and MLS2 |
+| 192.0.2.97 | RT Warsaw, public IP |
+| 172.23.69.82 | RT Warsaw, link to MLS3 |
+| 193.136.60.147 | BR2, public IP |
+| 192.186.167.64/30 | BR2-Campus1 link |
+| 192.186.167.30, .46, .62 | BR2, VLAN gateways |
+| 192.186.166.254 | Campus1, USERS gateway |
+
+The Vault tunnel endpoint (10.0.0.10) was left out, since the Vault is outside the scope of this requirement.
+
+### 7.3 Configuration
+
+The full configuration of every router is in *ConfigFiles_Sprint2/ACLs.txt*. As an example, these are the ACLs of *RT Oporto*, the router where the three tunnels end:
+
+- RT Oporto, LAN side (MLS2-IN is the same, with 10.42.59.198 in the OSPF line)
+
+```
+ip access-list extended MLS1-IN
+ remark OSPF from MLS1
+ permit ospf host 10.42.59.194 any
+ remark Block traffic addressed to any Oporto, Warsaw or Munich router
+ deny ip any 10.0.0.0 0.0.0.7
+ deny ip any host 10.0.0.9
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 192.0.2.97
+ deny ip any host 172.23.69.82
+ deny ip any host 193.136.60.147
+ deny ip any 192.186.167.64 0.0.0.3
+ deny ip any host 192.186.167.30
+ deny ip any host 192.186.167.46
+ deny ip any host 192.186.167.62
+ deny ip any host 192.186.166.254
+ remark Internal anti-spoofing: only Oporto sources may enter
+ permit ip 10.42.56.0 0.0.3.255 any
+ deny ip any any
+!
+interface GigabitEthernet0/0
+ ip access-group MLS1-IN in
+interface GigabitEthernet0/1
+ ip access-group MLS2-IN in
+```
+
+- RT Oporto, Internet side
+
+```
+ip access-list extended OUTSIDE-IN
+ remark DHCP replies from the SP (Gi0/0/0 is a DHCP client)
+ permit udp host 209.165.200.158 eq 67 any eq 68
+ remark External anti-spoofing: private, reserved and internal sources
+ deny ip 0.0.0.0 0.255.255.255 any
+ deny ip 10.0.0.0 0.255.255.255 any
+ deny ip 127.0.0.0 0.255.255.255 any
+ deny ip 169.254.0.0 0.0.255.255 any
+ deny ip 172.16.0.0 0.15.255.255 any
+ deny ip 192.168.0.0 0.0.255.255 any
+ deny ip 192.186.166.0 0.0.1.255 any
+ deny ip 224.0.0.0 15.255.255.255 any
+ deny ip 240.0.0.0 15.255.255.255 any
+ deny ip host 209.165.200.129 any
+ remark GRE from the tunnel peers (Warsaw, Munich, Vault)
+ permit gre host 192.0.2.97 host 209.165.200.129
+ permit gre host 193.136.60.147 host 209.165.200.129
+ permit gre host 203.0.113.2 host 209.165.200.129
+ remark Return traffic for PAT and for the router itself
+ permit icmp any host 209.165.200.129 echo-reply
+ permit icmp any host 209.165.200.129 ttl-exceeded
+ permit icmp any host 209.165.200.129 unreachable
+ permit tcp any host 209.165.200.129 established
+ permit udp host 8.8.8.8 eq 53 host 209.165.200.129
+ remark Block everything else addressed to this router
+ deny ip any host 209.165.200.129
+ deny ip any host 10.42.59.193
+ deny ip any host 10.42.59.197
+ deny ip any host 10.0.0.1
+ deny ip any host 10.0.0.5
+ deny ip any host 10.0.0.9
+ remark Allow all remaining transit traffic
+ permit ip any any
+!
+interface GigabitEthernet0/0/0
+ ip access-group OUTSIDE-IN in
+```
+
+The other routers follow the same structure. The differences are:
+
+| Router | ACL | Differences from RT Oporto |
+|---|---|---|
+| RT Warsaw | MLS3-IN | OSPF from 172.23.69.81; source 172.23.68.0/23 |
+| RT Warsaw | OUTSIDE-IN | DHCP from 192.0.2.110; GRE only from 209.165.200.129; protects 192.0.2.97, 172.23.69.82 and 10.0.0.2 |
+| BR2 | STAFF-IN, ACCOUNTING-IN, HR-IN | DHCP server lines instead of OSPF; source is the VLAN network |
+| BR2 | CAMPUS1-IN | EIGRP from 192.186.167.66; sources 192.186.166.0/24 and 192.186.167.66 |
+| BR2 | OUTSIDE-IN | No DHCP line (static public IP); GRE only from 209.165.200.129; protects 193.136.60.147, 10.0.0.6, 192.186.167.65 and the three VLAN gateways |
+| Campus1 | USERS-IN | DHCP server lines; source 192.186.166.0/24 |
+| Campus1 | BR2-IN | EIGRP from 192.186.167.65; drops the USERS network as source; protects 192.186.167.66 and 192.186.166.254; allows everything else |
+
+### 7.4 Tests
+
+The tests were carried out one router at a time, in the order BR2, Campus1, BR1 and RT Oporto. RT Oporto was the last one because a mistake in its OUTSIDE-IN would drop all three tunnels. After applying each ACL, we checked that the routing neighbours stayed up, that transit traffic still passed and that traffic addressed to the routers was dropped. The match counters of *show access-lists* show which line handled each packet.
+
+| Test | Expected | Result |
+|---|---|---|
+| OSPF neighbours after the ACLs (HQ and BR1) | All in FULL, including over Tunnel0 | OK |
+| EIGRP neighbours after the ACLs (HQ, BR2 and Campus1) | Tun1, Tun2 and the BR2-Campus1 link up | OK |
+| GRE on the HQ | Matches on the three *permit gre* lines | OK |
+| DHCP client: *shutdown* / *no shutdown* on Gi0/0/0 of HQ and BR1 | Public IP renewed; tunnels and neighbours come back | OK |
+| DHCP server: PCs in Munich get an address | Matches on the DHCP lines of STAFF-IN and USERS-IN | OK |
+| Ping between PCs of the three sites | Reply | OK |
+| PAT: PC ping to 8.8.8.8 and www.google.com | Reply; *echo-reply* and *udp 53* counters go up | OK |
+| Router's own traffic: `ping www.google.com` on HQ and BR1 | !!!!! | OK |
+| Ping from a PC to the IPs of its own and of remote routers | Dropped | OK (matches on the corresponding *deny* lines) |
+
+- Oporto PC: transit allowed, routers blocked
+
+<p align="center">
+  <img src="image/Acls/Oporto-PC-Tests-success.png" width="49%">
+  <img src="image/Acls/Oporto-PC-Tests-failure.png" width="49%">
+</p>
+
+On the left, the pings to a PC in Warsaw (172.23.69.4) and to the Internet (8.8.8.8 and www.google.com) get a reply. On the right, the pings to *RT Oporto* (10.42.59.193 and 209.165.200.129) and to *RT Warsaw* (172.23.69.82) fail. The *Destination host unreachable* message is sent by *RT Oporto* (10.42.59.197) because the packet was dropped by the ACL.
+
+- RT Oporto: MLS1-IN counters
+
+![](image/Acls/HQ-MLS1-IN.png)
+
+The blocked pings appear as matches on the corresponding *deny* lines (10.42.59.193, 209.165.200.129 and 172.23.69.82), while the traffic to the other sites and to the Internet matched the *permit* for the Oporto sources. The *permit ospf* line keeps the OSPF neighbour with *MLS1*.
+
+- RT Oporto: OUTSIDE-IN counters
+
+![](image/Acls/HQ-OUTSIDE-IN.png)
+
+The three *permit gre* lines have matches, one per tunnel peer, so the tunnels to Warsaw, Munich and the Vault, and the OSPF and EIGRP traffic inside them, pass through the ACL. The DHCP line has matches from the renewal test. The *echo-reply* and *udp 53* lines went up with the PC's ping to 8.8.8.8 and www.google.com, which shows that the PAT return traffic is allowed. No packet matched the anti-spoofing lines, as expected, because no spoofed traffic was generated.
+
+- Warsaw PC: transit allowed, routers blocked
+
+<p align="center">
+  <img src="image/Acls/Warsaw-PC-Tests-success.png" width="49%">
+  <img src="image/Acls/Warsaw-PC-Tests-failure.png" width="49%">
+</p>
+
+On the left, the pings from Warsaw-STAFF to a PC in Munich (192.186.166.1) and to the Internet (8.8.8.8 and www.google.com) get a reply. On the right, the pings to *RT Warsaw* (172.23.69.82), to the tunnel endpoint of *RT Oporto* (10.0.0.1) and to *BR2* (193.136.60.147) fail. The *Destination host unreachable* message is sent by *RT Warsaw* (172.23.69.82) because the packet was dropped by MLS3-IN. The first ping to 8.8.8.8 timed out while the ARP and the PAT translation were being set up, which is normal in Packet Tracer.
+
+- RT Warsaw: MLS3-IN counters
+
+![](image/Acls/BR1-MLS3-IN.png)
+
+The blocked pings appear as matches on the corresponding *deny* lines, while the traffic to the other sites and to the Internet matched the *permit* for the Warsaw sources. The *permit ospf* line keeps the OSPF neighbour with *MLS3*.
+
+- RT Warsaw: OUTSIDE-IN counters
+
+![](image/Acls/BR1-OUTSIDE-IN.png)
+
+The *permit gre* line has matches, so the tunnel to *RT Oporto*, and the OSPF traffic inside it, pass through the ACL. The DHCP line has matches from the renewal test below, and the *echo-reply* and *udp 53* lines went up with the PC's pings to the Internet, which shows that the PAT return traffic is allowed.
+
+- RT Warsaw: DHCP client renewal
+
+![](image/Acls/BR1-DHCP.png)
+
+After *shutdown* / *no shutdown* on Gi0/0/0, the interface gets 192.0.2.97 again from the SP, and the OSPF neighbour over Tunnel0 comes back to FULL. This shows that the DHCP line of OUTSIDE-IN is working.
+
+- Munich PC (STAFF, behind BR2): transit allowed, routers blocked
+
+<p align="center">
+  <img src="image/Acls/Munich-PC-Tests-success.png" width="49%">
+  <img src="image/Acls/Munich-PC-Tests-failure.png" width="49%">
+</p>
+
+On the left, the pings from Munich-STAFF to a PC in Warsaw (172.23.69.4) and to the Internet (8.8.8.8 and www.google.com) get a reply. On the right, the pings to its own gateway on *BR2* (192.186.167.46), to the public IP of *BR2* (193.136.60.147) and to the tunnel endpoint of *RT Oporto* (10.0.0.5) fail. The *Destination host unreachable* message is sent by *BR2* (192.186.167.46) because the packet was dropped by STAFF-IN.
+
+- BR2 Munich: STAFF-IN counters
+
+![](image/Acls/BR2-STAFF-IN.png)
+
+The DHCP request line has matches from the PC getting its address from *BR2*, and the blocked pings appear as matches on the corresponding *deny* lines. The traffic to the other sites and to the Internet matched the *permit* for the STAFF sources. ACCOUNTING-IN and HR-IN have the same structure.
+
+- BR2 Munich: OUTSIDE-IN counters
+
+![](image/Acls/BR2-OUTSIDE-IN.png)
+
+The *permit gre* line has matches, so the tunnel to *RT Oporto*, and the EIGRP traffic inside it, pass through the ACL. The *echo-reply* and *udp 53* lines went up with the PC's pings to the Internet, which shows that the PAT return traffic is allowed. *BR2* has a static public IP, so this ACL has no DHCP line.
+
+- Campus1 Munich: USERS PC blocked from the routers
+
+![](image/Acls/Campus1-PC-Tests-failure.png)
+
+The pings from Munich-USERS to its gateway on *Campus1* (192.186.166.254), to *BR2* (192.186.167.65) and to *RT Oporto* (10.0.0.1) fail. The *Destination host unreachable* message is sent by *Campus1* (192.186.166.254) because the packet was dropped by USERS-IN. The transit traffic from this PC was already shown in the tests from Oporto and Warsaw, which reach it at 192.186.166.1.
+
+- Campus1 Munich: USERS-IN and BR2-IN counters
+
+![](image/Acls/Campus1-ACLs.png)
+
+On USERS-IN, the DHCP request line and the local traffic have matches, and the blocked pings appear on the corresponding *deny* lines. On BR2-IN, the *permit eigrp* line keeps the EIGRP neighbour with *BR2*, and the transit traffic coming from the other sites matches the final *permit ip any any*.
+
+### 7.5 Limitations
+
+- **No ACLs on the tunnels:** Packet Tracer does not allow ACLs on Tunnel interfaces, so the protection against traffic arriving through the tunnels depends on the LAN ACLs of the other sites. This works because all the sources are filtered at their origin.
+- **Stateless ACLs:** the PAT return is allowed by protocol, not by session. Apart from DNS from 8.8.8.8, UDP replies from the Internet to the hosts are not allowed. Allowing them per session would require stateful filtering, such as reflexive ACLs or a zone-based firewall, which is outside the scope of this sprint.
+- **Router addresses are listed one by one:** if any router IP changes, the LAN ACLs of all sites must be updated.
+- **The Vault is not covered**, since the requirement only names Oporto, Warsaw and Munich.
