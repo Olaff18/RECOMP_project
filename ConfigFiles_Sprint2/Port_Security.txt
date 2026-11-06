@@ -1,0 +1,203 @@
+-- Munich
+
+- SW7 (BR2 LAN: STAFF, ACCOUNTING, HR)
+
+enable
+configure terminal
+ip dhcp snooping
+ip dhcp snooping vlan 10,20,30
+ip arp inspection vlan 10,20,30
+no ip dhcp snooping information option
+interface GigabitEthernet0/1
+description Uplink to BR2 Router
+switchport mode trunk
+switchport nonegotiate
+switchport trunk native vlan 50
+switchport trunk allowed vlan 10,20,30,50
+ip dhcp snooping trust
+ip arp inspection trust
+no shutdown
+exit
+interface range FastEthernet0/1 - 5
+description ACCESS PORTS - STAFF
+switchport mode access
+switchport access vlan 10
+switchport port-security
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+spanning-tree portfast
+spanning-tree bpduguard enable
+no shutdown
+exit
+interface range FastEthernet0/6 - 10
+description ACCESS PORTS - ACCOUNTING
+switchport mode access
+switchport access vlan 20
+switchport port-security
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+spanning-tree portfast
+spanning-tree bpduguard enable
+no shutdown
+exit
+interface range FastEthernet0/11 - 15
+description ACCESS PORTS - HR
+switchport mode access
+switchport access vlan 30
+switchport port-security
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+spanning-tree portfast
+spanning-tree bpduguard enable
+no shutdown
+exit
+interface range FastEthernet0/16 - 24, GigabitEthernet0/2
+description NOT IN USE - BLACKHOLE
+switchport mode access
+switchport access vlan 99
+shutdown
+exit
+end
+write memory
+
+- SW8 (Campus1 LAN: USERS)
+
+enable
+configure terminal
+ip dhcp snooping
+ip dhcp snooping vlan 40
+ip arp inspection vlan 40
+no ip dhcp snooping information option
+interface GigabitEthernet0/1
+description Access Link to Campus1 Router
+switchport mode access
+switchport access vlan 40
+ip dhcp snooping trust
+ip arp inspection trust
+no shutdown
+exit
+interface range FastEthernet0/1 - 24
+description ACCESS PORTS - USERS
+switchport mode access
+switchport access vlan 40
+switchport port-security
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+spanning-tree portfast
+spanning-tree bpduguard enable
+no shutdown
+exit
+interface GigabitEthernet0/2
+description NOT IN USE - BLACKHOLE
+switchport mode access
+switchport access vlan 99
+shutdown
+exit
+end
+write memory
+
+-- Warsaw
+
+- SW3, SW4, SW5, SW6 (same configuration on the four switches)
+
+enable
+configure terminal
+no ip dhcp snooping
+no ip arp inspection vlan 10,20,30,40
+interface range FastEthernet0/1 - 2
+description TRUNK UPLINKS TO MLS
+switchport mode trunk
+switchport trunk native vlan 50
+switchport trunk allowed vlan 10,20,30,40,50
+no spanning-tree bpduguard enable
+exit
+interface range FastEthernet0/3 - 5
+description ACCESS PORTS - STAFF
+switchport mode access
+switchport access vlan 10
+exit
+interface range FastEthernet0/6 - 10
+description ACCESS PORTS - ACCOUNTING
+switchport mode access
+switchport access vlan 20
+exit
+interface range FastEthernet0/11 - 15
+description ACCESS PORTS - HR
+switchport mode access
+switchport access vlan 30
+exit
+interface range FastEthernet0/16 - 20
+description ACCESS PORTS - USERS
+switchport mode access
+switchport access vlan 40
+exit
+interface range FastEthernet0/3 - 20
+switchport port-security
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+spanning-tree portfast
+spanning-tree bpduguard enable
+shutdown
+no shutdown
+exit
+interface range FastEthernet0/21 - 24, GigabitEthernet0/1 - 2
+description NOT IN USE - BLACKHOLE
+switchport mode access
+switchport access vlan 99
+shutdown
+exit
+end
+write memory
+
+-- Oporto
+
+- SW1, SW2 (same configuration on both switches; trunks Fa0/3-4 and VLANs from Sprint 1)
+
+enable
+configure terminal
+interface range FastEthernet0/5 - 20
+switchport mode access
+switchport port-security
+switchport port-security maximum 2
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+spanning-tree portfast
+spanning-tree bpduguard enable
+exit
+end
+write memory
+
+-- Vault
+
+- Vault Switch (no user VLANs or hosts: all access ports quarantined)
+
+enable
+configure terminal
+no ip dhcp snooping
+interface GigabitEthernet0/1
+description Uplink to Vault Router
+switchport mode access
+switchport access vlan 1
+no shutdown
+exit
+interface range FastEthernet0/1 - 24, GigabitEthernet0/2
+description NOT IN USE - BLACKHOLE
+switchport mode access
+switchport access vlan 99
+shutdown
+exit
+end
+write memory
+
+-- Verification
+
+show port-security
+show port-security address
+show port-security interface FastEthernet0/1
+show interfaces status
+show interfaces trunk
